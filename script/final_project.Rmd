@@ -40,3 +40,7 @@ pivot_hs_only <- pivot_longer(highschool_only, 17:18,
                               values_to = "date_and_time")
 ```
 
+```{r}
+5 + 4
+```
+
