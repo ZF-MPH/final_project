@@ -1,0 +1,42 @@
+---
+title: "final_project_mkdn"
+author: "Zach F"
+date: "11/10/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(rio)
+library(here)
+library(janitor)
+demo <- import(here("data", "Teen-Demographic-SPSS(1).zip"))
+
+phys_act <- import(here("data", "Teen-PA-SPSS(1).zip"))
+
+# joined demographics and PA-questionnaire by participant ID "PID"
+joined_set <- demo %>% full_join(phys_act, by = "PID")
+
+
+# selecting only variables that we may use
+selected_variables <- joined_set %>% 
+  select(1, 9:15, 20:25, 27:30, 33:55, 62:135,
+         150:181, 183:200)
+
+# filter to only show high school respondents & makes a new 
+# column showing the time (in hours) it took the individual to
+# complete the survey
+highschool_only <- selected_variables %>% 
+  filter(TGRADE >= 4 & TGRADE < 8) %>% 
+  filter(!is.na(TGRADE)) %>% 
+  mutate(survey_time_complete_in_hrs = (DATE_SUBMITTED - DATE_STARTED) / 60)
+
+#to compress columns for start and submit time of survey
+pivot_hs_only <- pivot_longer(highschool_only, 17:18, 
+                              values_to = "date_and_time")
+```
+
