@@ -14,12 +14,12 @@ library(tidyverse)
 library(rio)
 library(here)
 library(janitor)
-demo <- import(here("data", "Teen-Demographic-SPSS(1).zip"))
+demographics <- import(here("data", "Teen-Demographic-SPSS(1) copy.zip"))
 
-phys_act <- import(here("data", "Teen-PA-SPSS(1).zip"))
+phys_act <- import(here("data", "Teen-PA-SPSS(1) copy.zip"))
 
 # joined demographics and PA-questionnaire by participant ID "PID"
-joined_set <- demo %>% full_join(phys_act, by = "PID")
+joined_set <- demographics %>% full_join(phys_act, by = "PID")
 
 
 # selecting only variables that we may use
