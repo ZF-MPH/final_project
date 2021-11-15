@@ -9,7 +9,8 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Commit 1
+## Join Data
+Datasets were **joined** (demographics dataset and physical activity dataset)
 ```{r}
 library(tidyverse)
 library(rio)
@@ -25,22 +26,24 @@ joined_set <- demographics %>% full_join(phys_act, by = "PID")
 
 # selecting only variables that we may use
 selected_variables <- joined_set %>% 
-  select(TAGE, TSEX, TSCHLTYPE, XTHEIGHTCM_RC, XTWEIGHTKG_RC, TETHRAC_RC, TPMPABAD, TPMPAWANT, TPMPAUPST, TPMPAIMPT, XTPREDWEEKS, XTPREDWEEKOFS, XTPREDWEEKW) %>% 
-
-# filter to only show high school respondents & makes a new 
-# column showing the time (in hours) it took the individual to
-# complete the survey
-highschool_only <- selected_variables %>% 
-  filter(TGRADE >= 4 & TGRADE < 8) %>% 
-  filter(!is.na(TGRADE)) %>% 
-  mutate(survey_time_complete_in_hrs = (DATE_SUBMITTED - DATE_STARTED) / 60)
-
-#to compress columns for start and submit time of survey
-pivot_hs_only <- pivot_longer(highschool_only, 17:18, 
-                              values_to = "date_and_time")
+  select(TAGE, TGRADE, TSEX, TSCHLTYPE, XTHEIGHTCM_RC, XTWEIGHTKG_RC, TETHRAC_RC, TPMPABAD, TPMPAWANT, TPMPAUPST, TPMPAIMPT, XTPREDWEEKS, XTPREDWEEKOFS, XTPREDWEEKW)
 ```
 
+## Filter and Mutate
+We **filtered** to only show _high school respondents_ & then used **mutate()**
+to create a column for BMI (calculated from height/weight
 ```{r}
-5 + 4
+highschool_only <- selected_variables %>% 
+  filter(TAGE >= 14 | TAGE < 18) %>% 
+  filter(!is.na(TAGE))
+
+HS_W_BMI <- highschool_only %>% 
+  mutate(Height_M = XTHEIGHTCM_RC / 100) %>% 
+  mutate(BMI = XTWEIGHTKG_RC/(Height_M^2))
+```
+
+## Commit 3
+```{r}
+
 ```
 
