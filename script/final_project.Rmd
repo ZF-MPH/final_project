@@ -9,6 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+## Commit 1
 ```{r}
 library(tidyverse)
 library(rio)
@@ -24,8 +25,7 @@ joined_set <- demographics %>% full_join(phys_act, by = "PID")
 
 # selecting only variables that we may use
 selected_variables <- joined_set %>% 
-  select(1, 9:15, 20:25, 27:30, 33:55, 62:135,
-         150:181, 183:200)
+  select(TAGE, TSEX, TSCHLTYPE, XTHEIGHTCM_RC, XTWEIGHTKG_RC, TETHRAC_RC, TPMPABAD, TPMPAWANT, TPMPAUPST, TPMPAIMPT, XTPREDWEEKS, XTPREDWEEKOFS, XTPREDWEEKW) %>% 
 
 # filter to only show high school respondents & makes a new 
 # column showing the time (in hours) it took the individual to
