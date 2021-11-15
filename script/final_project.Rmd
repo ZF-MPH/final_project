@@ -39,11 +39,17 @@ highschool_only <- selected_variables %>%
 
 HS_W_BMI <- highschool_only %>% 
   mutate(Height_M = XTHEIGHTCM_RC / 100) %>% 
-  mutate(BMI = XTWEIGHTKG_RC/(Height_M^2))
+  mutate(BMI = XTWEIGHTKG_RC/(Height_M^2)) %>%
+  mutate(total_PA = XTPREDWEEKS + XTPREDWEEKOFS + XTPREDWEEKW)
 ```
 
 ## Commit 3
 ```{r}
+HS_W_BMI %>%
+  group_by(TSCHLTYPE, TSEX) %>%
+  summarize(mean_age = mean(TAGE), mean_total_PA= mean(total_PA, na.rm= TRUE))
 
+#come back to this to get rid of the -9
+# next up: pivot_wider and pivot_longer
 ```
 
