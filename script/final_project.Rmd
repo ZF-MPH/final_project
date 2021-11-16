@@ -53,3 +53,17 @@ HS_W_BMI %>%
 # next up: pivot_wider and pivot_longer
 ```
 
+ZACH TEST (Turns all "-9" into "NA") (This worked)
+```{r}
+library(naniar)
+NAs_HS_W_BMI <- HS_W_BMI %>% 
+  replace_with_na_all(condition = ~.x == -9) %>% 
+  characterize()
+```
+
+ZACH TEST to get rid of all rows containing NA (this worked)
+```{r}
+omit_HS_W_BMI <- na.omit(NAs_HS_W_BMI)
+# TRIED to use characterize here, and it did nothing
+```
+
