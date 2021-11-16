@@ -1,6 +1,6 @@
 ---
 title: "final_project_mkdn"
-author: "Zach F"
+author: "Zach F, Elizabeth B, & Esmeralda C"
 date: "11/10/2021"
 output: html_document
 ---
@@ -65,5 +65,18 @@ ZACH TEST to get rid of all rows containing NA (this worked)
 ```{r}
 omit_HS_W_BMI <- na.omit(NAs_HS_W_BMI)
 # TRIED to use characterize here, and it did nothing
+```
+## Esme Visual Plot- In Progress..
+```{r}
+omit_HS_W_BMI %>% 
+  ggplot(aes(BMI, total_PA)) +
+  geom_point(aes(color = TSEX)) +
+  facet_wrap(~TETHRAC_RC) +
+  theme_minimal() +
+  labs(y = "Total Physical Activity per Week",
+       x = "Body Mass Index",
+       title = "Physical Activity and Body Mass Index")
+
+# may look for something other than BMI
 ```
 
