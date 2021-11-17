@@ -22,11 +22,22 @@ phys_act <- import(here("data", "Teen-PA-SPSS(1) copy.zip"))
 
 # joined demographics and PA-questionnaire by participant ID "PID"
 joined_set <- demographics %>% full_join(phys_act, by = "PID")
+#try left_join and decide which to use, based on what data/variibles we want
 
+joined_set_revise <- demographics %>% left_join(phys_act, by = "PID")
+#suggestion from Prof Nese
+joined_set_revise %>% 
+  as_tibble() %>%
+  select(TSEX, TSCHLTYPE, TETHRAC_RC) %>% 
+  characterize(c(TSEX, TSCHLTYPE, TETHRAC_RC))
+#select so we only see what we're characterzing 
 
 # selecting only variables that we may use
 selected_variables <- joined_set %>% 
   select(TAGE, TGRADE, TSEX, TSCHLTYPE, XTHEIGHTCM_RC, XTWEIGHTKG_RC, TETHRAC_RC, TPMPABAD, TPMPAWANT, TPMPAUPST, TPMPAIMPT, XTPREDWEEKS, XTPREDWEEKOFS, XTPREDWEEKW)
+
+selected_variables %>% as_tibble() %>%
+  characterize(c("TSEX", "TSCHLTYPE", "TETHRAC_RC"))  
 
 #characterize race, sex, and school type 
 ```
@@ -57,6 +68,11 @@ longer_hs <- highschool_only %>%
     names_to = "MVPA(source)", 
     values_to = "minutes", 
     values_drop_na = TRUE)
+
+longer_hs2 <- highschool_only %>% 
+  pivot_longer(
+    cols = starts_with ("TPMPA"), 
+    names_to = "TP"
 
  wider_hs <- highschool_only %>%
     pivot_wider(
