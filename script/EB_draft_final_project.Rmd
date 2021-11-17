@@ -1,6 +1,6 @@
 ---
 title: "final_project_mkdn"
-author: "Zach F, Elizabeth B, & Esmeralda C"
+author: "Zach F"
 date: "11/10/2021"
 output: html_document
 ---
@@ -16,6 +16,9 @@ library(tidyverse)
 library(rio)
 library(here)
 library(janitor)
+library(tidyr)
+library(dplyr)
+library(readr)
 demographics <- import(here("data", "Teen-Demographic-SPSS(1) copy.zip"))
 
 phys_act <- import(here("data", "Teen-PA-SPSS(1) copy.zip"))
@@ -27,8 +30,6 @@ joined_set <- demographics %>% full_join(phys_act, by = "PID")
 # selecting only variables that we may use
 selected_variables <- joined_set %>% 
   select(TAGE, TGRADE, TSEX, TSCHLTYPE, XTHEIGHTCM_RC, XTWEIGHTKG_RC, TETHRAC_RC, TPMPABAD, TPMPAWANT, TPMPAUPST, TPMPAIMPT, XTPREDWEEKS, XTPREDWEEKOFS, XTPREDWEEKW)
-
-#characterize race, sex, and school type 
 ```
 
 ## Filter and Mutate
@@ -50,6 +51,7 @@ HS_W_BMI <- highschool_only %>%
 HS_W_BMI %>%
   group_by(TSCHLTYPE, TSEX) %>%
   summarize(mean_age = mean(TAGE), mean_total_PA= mean(total_PA, na.rm= TRUE))
+#come back to this to get rid of the -9
 
 longer_hs <- highschool_only %>% 
   pivot_longer(
@@ -57,42 +59,24 @@ longer_hs <- highschool_only %>%
     names_to = "MVPA(source)", 
     values_to = "minutes", 
     values_drop_na = TRUE)
-
- wider_hs <- highschool_only %>%
+    
+  wider_hs <- highschool_only %>%
     pivot_wider(
      names_from = c(TGRADE,TSEX), 
      values_from = XTPREDWEEKS,
      values_fn = list(XTPREDWEEKS = mean))
- #doesn't make sense so will change, but it does make it wider! 
+  
+  wider_hs2 <- highschool_only %>%
+    pivot_wider(
+      names_from = TSEX, 
+      values_from = c(TGRADE, TAGE)
+    )
+  
+  #mean weekly minutes of exercise at school for each combination of grade and sex
+  #need to remove the NA- 
+  
 
-#come back to this to get rid of the -9
+
 # next up: pivot_wider and pivot_longer
-```
-
-ZACH TEST (Turns all "-9" into "NA") (This worked)
-```{r}
-library(naniar)
-NAs_HS_W_BMI <- HS_W_BMI %>% 
-  replace_with_na_all(condition = ~.x == -9) %>% 
-  characterize()
-```
-
-ZACH TEST to get rid of all rows containing NA (this worked)
-```{r}
-omit_HS_W_BMI <- na.omit(NAs_HS_W_BMI)
-# TRIED to use characterize here, and it did nothing
-```
-## Esme Visual Plot- In Progress..
-```{r}
-omit_HS_W_BMI %>% 
-  ggplot(aes(BMI, total_PA)) +
-  geom_point(aes(color = TSEX)) +
-  facet_wrap(~TETHRAC_RC) +
-  theme_minimal() +
-  labs(y = "Total Physical Activity per Week",
-       x = "Body Mass Index",
-       title = "Physical Activity and Body Mass Index")
-
-# may look for something other than BMI
 ```
 
