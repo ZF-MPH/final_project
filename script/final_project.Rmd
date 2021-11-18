@@ -9,6 +9,81 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+##Load Packages
+```{r}
+library(tidyverse)
+library(rio)
+library(here)
+library(janitor)
+library(naniar)
+```
+
+##Load Data
+```{r}
+demographics <- import(here("data", "Teen-Demographic-SPSS(1) copy.zip"))
+
+phys_act <- import(here("data", "Teen-PA-SPSS(1) copy.zip"))
+
+```
+
+## Joined Data
+```{r}
+joined_set <- demographics %>% full_join(phys_act, by = "PID")
+
+join1 <- joined_set %>% 
+  as_tibble() %>%
+  select(PID, TSEX, TSCHLTYPE, TETHRAC_RC, TGRADE, TAGE) %>% 
+  characterize(c(TSEX, TSCHLTYPE, TETHRAC_RC, TGRADE, TAGE))
+
+join2 <- joined_set %>% 
+  select(PID,XTHEIGHTCM_RC, XTWEIGHTKG_RC, TETHRAC_RC, TPMPABAD, TPMPAWANT, TPMPAUPST, TPMPAIMPT, XTPREDWEEKS, XTPREDWEEKOFS, XTPREDWEEKW, TAGE)
+
+full_joined_set <- join2 %>% full_join(join1, by = "PID")
+```
+
+## Convert "-9" to "NA" and ridding any rows with "NAs"
+```{r}
+final_joined <- full_joined_set %>% 
+  replace_with_na_all(condition = ~.x == -9) %>% 
+  na.omit(full_joined_set)
+```
+
+
+## Ages 13-18 (teenagers) only
+```{r}
+teenage_only <- final_joined %>% 
+  filter(TAGE.x >= 3)
+```
+
+## Teenagers With BMI Calculated )
+__teen_w_bmi__ is our data set to use and create visualizations
+```{r}
+teen_w_bmi <- teenage_only %>% 
+  mutate(height_meters = XTHEIGHTCM_RC / 100) %>% 
+  mutate(bmi = XTWEIGHTKG_RC/(height_meters^2)) %>%
+  mutate(total_pa_wk_min = XTPREDWEEKS + XTPREDWEEKOFS + XTPREDWEEKW)
+```
+
+
+## Grouping by School Type and Sex to Summarize Mean Age and Mean Total Weekly PA
+```{r}
+teen_w_bmi %>%
+  group_by(TSCHLTYPE, TSEX) %>%
+  summarize(mean_age = mean(TAGE.x + 10), 
+            mean_total_PA = mean(total_pa_wk_min))
+
+# Need to make it to where we can see 5 total characters (so we can have two decimal points for the mean_total_PA)
+```
+
+
+
+
+*__!!!!EVERYTHING BELOW THIS IS OLD DRAFT!!!!__*
+__ALL FINALIZED CODING SHOULD GO IN THE TOP PORTION - Practice can be done below this line!__
+
+
+
+
 ## Join Data
 Datasets were **joined** (demographics dataset and physical activity dataset)
 ```{r}
@@ -23,13 +98,6 @@ phys_act <- import(here("data", "Teen-PA-SPSS(1) copy.zip"))
 # joined demographics and PA-questionnaire by participant ID "PID"
 joined_set <- demographics %>% full_join(phys_act, by = "PID")
 
-#trying to characterize our original joined set in the same way Dr. Nese did. . . HOW do we get it to work while still using all the variables we need?
-
-joined_set_chz <- demographics %>% full_join(phys_act, by = "PID") %>% 
-  select(TAGE, TGRADE, TSEX, TSCHLTYPE, XTHEIGHTCM_RC, XTWEIGHTKG_RC, TETHRAC_RC, TPMPABAD, TPMPAWANT, TPMPAUPST, TPMPAIMPT, XTPREDWEEKS, XTPREDWEEKOFS, XTPREDWEEKW) %>%
-  characterize(c(TSEX, TSCHLTYPE, TETHRAC_RC))
-  
-
 #try left_join and decide which to use, based on what data/variables we want
 
 joined_set_revise <- demographics %>% left_join(phys_act, by = "PID")
@@ -38,7 +106,7 @@ joined_set_revise %>%
   as_tibble() %>%
   select(TSEX, TSCHLTYPE, TETHRAC_RC) %>% 
   characterize(c(TSEX, TSCHLTYPE, TETHRAC_RC))
-#select so we only see what we're characterzing 
+#select so we only see what we're characterizing 
 
 # selecting only variables that we may use
 selected_variables <- joined_set %>% 
@@ -68,7 +136,7 @@ HS_W_BMI <- highschool_only %>%
 ```{r}
 HS_W_BMI %>%
   group_by(TSCHLTYPE, TSEX) %>%
-  summarize(mean_age = mean(TAGE), mean_total_PA= mean(total_PA, na.rm= TRUE))
+  summarize(mean_age = mean(TAGE), mean_total_PA = mean(total_PA, na.rm= TRUE))
 
 longer_hs <- highschool_only %>% 
   pivot_longer(
@@ -97,8 +165,7 @@ ZACH TEST (Turns all "-9" into "NA") (This worked)
 ```{r}
 library(naniar)
 NAs_HS_W_BMI <- HS_W_BMI %>% 
-  replace_with_na_all(condition = ~.x == -9) %>% 
-  characterize()
+  replace_with_na_all(condition = ~.x == -9)
 ```
 
 ZACH TEST to get rid of all rows containing NA (this worked)
