@@ -70,9 +70,11 @@ teen_w_bmi <- teenage_only %>%
 teen_w_bmi %>%
   group_by(TSCHLTYPE, TSEX) %>%
   summarize(mean_age = mean(TAGE.x + 10), 
-            mean_total_PA = mean(total_pa_wk_min))
+            mean_total_PA = mean(total_pa_wk_min)) %>% 
+  as_tibble()
 
 # Need to make it to where we can see 5 total characters (so we can have two decimal points for the mean_total_PA)
+# Also, there are 4 remaining rows that have a "not ascertained" for TSEX. Need to get rid of these.
 ```
 
 
