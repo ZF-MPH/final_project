@@ -26,7 +26,7 @@ joined_set <- demographics %>% full_join(phys_act, by = "PID")
 #trying to characterize our original joined set in the same way Dr. Nese did. . . HOW do we get it to work while still using all the variables we need?
 
 joined_set_chz <- demographics %>% full_join(phys_act, by = "PID") %>% 
-  select(TAGE, TGRADE, TSEX, TSCHLTYPE, XTHEIGHTCM_RC, XTWEIGHTKG_RC, TETHRAC_RC, TPMPABAD, TPMPAWANT, TPMPAUPST, TPMPAIMPT, XTPREDWEEKS, XTPREDWEEKOFS, XTPREDWEEKW) %>% 
+  select(TAGE, TGRADE, TSEX, TSCHLTYPE, XTHEIGHTCM_RC, XTWEIGHTKG_RC, TETHRAC_RC, TPMPABAD, TPMPAWANT, TPMPAUPST, TPMPAIMPT, XTPREDWEEKS, XTPREDWEEKOFS, XTPREDWEEKW) %>%
   characterize(c(TSEX, TSCHLTYPE, TETHRAC_RC))
   
 
@@ -123,15 +123,15 @@ omit_HS_W_BMI %>%
 
 ## ZACH trying to fix characterize issues
 ```{r}
-join1 <- joined_set_revise %>% 
+join1 <- joined_set %>% 
   as_tibble() %>%
   select(PID, TSEX, TSCHLTYPE, TETHRAC_RC, TGRADE) %>% 
   characterize(c(TSEX, TSCHLTYPE, TETHRAC_RC, TGRADE))
 
-join2 <- joined_set_revise %>% 
+join2 <- joined_set %>% 
   select(PID,XTHEIGHTCM_RC, XTWEIGHTKG_RC, TETHRAC_RC, TPMPABAD, TPMPAWANT, TPMPAUPST, TPMPAIMPT, XTPREDWEEKS, XTPREDWEEKOFS, XTPREDWEEKW)
 
-try_joined_set <- join2 %>% full_join(join2, by = "PID")
+try_joined_set <- join2 %>% full_join(join1, by = "PID")
 ```
 **try_joined_set** worked!!!!!
 
