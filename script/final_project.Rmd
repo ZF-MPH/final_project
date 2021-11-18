@@ -22,7 +22,15 @@ phys_act <- import(here("data", "Teen-PA-SPSS(1) copy.zip"))
 
 # joined demographics and PA-questionnaire by participant ID "PID"
 joined_set <- demographics %>% full_join(phys_act, by = "PID")
-#try left_join and decide which to use, based on what data/variibles we want
+
+#trying to characterize our original joined set in the same way Dr. Nese did. . . HOW do we get it to work while still using all the variables we need?
+
+joined_set_chz <- demographics %>% full_join(phys_act, by = "PID") %>% 
+  select(TAGE, TGRADE, TSEX, TSCHLTYPE, XTHEIGHTCM_RC, XTWEIGHTKG_RC, TETHRAC_RC, TPMPABAD, TPMPAWANT, TPMPAUPST, TPMPAIMPT, XTPREDWEEKS, XTPREDWEEKOFS, XTPREDWEEKW) %>% 
+  characterize(c(TSEX, TSCHLTYPE, TETHRAC_RC))
+  
+
+#try left_join and decide which to use, based on what data/variables we want
 
 joined_set_revise <- demographics %>% left_join(phys_act, by = "PID")
 #suggestion from Prof Nese
@@ -72,7 +80,7 @@ longer_hs <- highschool_only %>%
 longer_hs2 <- highschool_only %>% 
   pivot_longer(
     cols = starts_with ("TPMPA"), 
-    names_to = "TP"
+    names_to = "TP")
 
  wider_hs <- highschool_only %>%
     pivot_wider(
@@ -96,6 +104,7 @@ NAs_HS_W_BMI <- HS_W_BMI %>%
 ZACH TEST to get rid of all rows containing NA (this worked)
 ```{r}
 omit_HS_W_BMI <- na.omit(NAs_HS_W_BMI)
+
 # TRIED to use characterize here, and it did nothing
 ```
 ## Esme Visual Plot- In Progress..
@@ -111,4 +120,18 @@ omit_HS_W_BMI %>%
 
 # may look for something other than BMI
 ```
+
+## ZACH trying to fix characterize issues
+```{r}
+join1 <- joined_set_revise %>% 
+  as_tibble() %>%
+  select(PID, TSEX, TSCHLTYPE, TETHRAC_RC, TGRADE) %>% 
+  characterize(c(TSEX, TSCHLTYPE, TETHRAC_RC, TGRADE))
+
+join2 <- joined_set_revise %>% 
+  select(PID,XTHEIGHTCM_RC, XTWEIGHTKG_RC, TETHRAC_RC, TPMPABAD, TPMPAWANT, TPMPAUPST, TPMPAIMPT, XTPREDWEEKS, XTPREDWEEKOFS, XTPREDWEEKW)
+
+try_joined_set <- join2 %>% full_join(join2, by = "PID")
+```
+**try_joined_set** worked!!!!!
 
