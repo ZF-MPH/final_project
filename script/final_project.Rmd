@@ -56,34 +56,51 @@ teenage_only <- final_joined %>%
 ```
 
 ## Teenagers With BMI Calculated )
-__teen_w_bmi__ is our data set to use and create visualizations
+__teen_w_bmi_1__ is our data set to use and create visualizations
 ```{r}
 teen_w_bmi <- teenage_only %>% 
   mutate(height_meters = XTHEIGHTCM_RC / 100) %>% 
   mutate(bmi = XTWEIGHTKG_RC/(height_meters^2)) %>%
   mutate(total_pa_wk_min = XTPREDWEEKS + XTPREDWEEKOFS + XTPREDWEEKW)
+
+teen_w_bmi_1 <- subset(teen_w_bmi, TSEX!="Not ascertained")
+teen_w_bmi_1 <- subset(teen_w_bmi_1, TSCHLTYPE!="Not ascertained")
+teen_w_bmi_1 <- subset(teen_w_bmi_1, TGRADE!="Not ascertained")
 ```
 
 
 ## Grouping by School Type and Sex to Summarize Mean Age and Mean Total Weekly PA
 ```{r}
-teen_w_bmi %>%
+teen_w_bmi_1 %>%
   group_by(TSCHLTYPE, TSEX) %>%
   summarize(mean_age = mean(TAGE.x + 10), 
             mean_total_PA = mean(total_pa_wk_min)) %>% 
   as_tibble()
 
 # Need to make it to where we can see 5 total characters (so we can have two decimal points for the mean_total_PA)
-# Also, there are 4 remaining rows that have a "not ascertained" for TSEX. Need to get rid of these.
 ```
 
 
 
 
-*__!!!!EVERYTHING BELOW THIS IS OLD DRAFT!!!!__*
+*__!!!!EVERYTHING BELOW THIS IS OLD DRAFT OR PRACTICE CHUNKS!!!!__*
 __ALL FINALIZED CODING SHOULD GO IN THE TOP PORTION - Practice can be done below this line!__
 
 
+##Practice Chunk GGPLOT
+```{r}
+teen_w_bmi %>% 
+  ggplot(aes(bmi, total_pa_wk_min)) +
+  geom_point(aes(color = TSEX)) +
+  geom_smooth() +
+  facet_wrap(~TETHRAC_RC.y) +
+  theme_minimal() +
+  labs(y = "Total Physical Activity per Week",
+       x = "Body Mass Index",
+       title = "Physical Activity and Body Mass Index")
+
+view(teen_w_bmi)
+```
 
 
 ## Join Data
