@@ -56,7 +56,7 @@ teenage_only <- final_joined %>%
 ```
 
 ## Teenagers With BMI Calculated )
-__teen_w_bmi_1__ is our data set to use and create visualizations
+__teen_w_bmi_1__ is our data set to use and create visualizations BUT __we still need to add the pivot longer and wider to this and save as object *cleaned_data* . That will be the absolute final data set__
 ```{r}
 teen_w_bmi <- teenage_only %>% 
   mutate(height_meters = XTHEIGHTCM_RC / 100) %>% 
@@ -80,6 +80,24 @@ teen_w_bmi_1 %>%
 # Need to make it to where we can see 5 total characters (so we can have two decimal points for the mean_total_PA)
 ```
 
+## First Visualization
+```{r}
+teen_w_bmi_1 %>% 
+  ggplot(aes(bmi, total_pa_wk_min)) +
+  geom_point(aes(color = TSEX)) +
+  geom_smooth(method = lm) +
+  facet_wrap(~TETHRAC_RC.y) +
+  theme_minimal() +
+  labs(y = "Total Physical Activity per Week",
+       x = "Body Mass Index",
+       title = "Physical Activity and Body Mass Index",
+       subtitle = "by Race/Ethnicity")
+```
+
+
+## Second Visualization
+Stacked Bar Chart showing
+
 
 
 
@@ -87,19 +105,40 @@ teen_w_bmi_1 %>%
 __ALL FINALIZED CODING SHOULD GO IN THE TOP PORTION - Practice can be done below this line!__
 
 
-##Practice Chunk GGPLOT
+##Practice Chunk GGPLOT from ESME
+Zach added line of best fit and eliminated not ascertained responses __probably ready to be moved into finalized section__
 ```{r}
-teen_w_bmi %>% 
+teen_w_bmi_1 %>% 
   ggplot(aes(bmi, total_pa_wk_min)) +
   geom_point(aes(color = TSEX)) +
-  geom_smooth() +
+  geom_smooth(method = lm) +
   facet_wrap(~TETHRAC_RC.y) +
   theme_minimal() +
   labs(y = "Total Physical Activity per Week",
        x = "Body Mass Index",
-       title = "Physical Activity and Body Mass Index")
+       title = "Physical Activity and Body Mass Index",
+       subtitle = "by Race/Ethnicity")
+```
 
-view(teen_w_bmi)
+##Practice Chunk GGPLOT ZACH
+this one shows counts of students age by grade
+```{r}
+teen_w_bmi_1 %>% 
+  ggplot(aes(x = TGRADE, fill = TAGE.y)) +
+  geom_bar(position = "stack") +
+  scale_y_continuous(breaks = seq(0, 300, by = 25)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+##Practice Chunk GGPLOT ZACH NUMBER 2
+this one shows counts of students age by grade faceted by race/ethnicity
+```{r}
+teen_w_bmi_1 %>% 
+  ggplot(aes(x = TGRADE, fill = TAGE.y)) +
+  geom_bar(position = "stack") +
+  scale_y_continuous(breaks = seq(0, 300, by = 25)) +
+  facet_wrap(~TETHRAC_RC.y) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 ```
 
 
