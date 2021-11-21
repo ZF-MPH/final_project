@@ -14,8 +14,8 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(rio)
 library(here)
-library(janitor)
 library(naniar)
+library(ggridges)
 ```
 
 ##Load Data
@@ -84,21 +84,39 @@ teen_w_bmi_1 %>%
 ```{r}
 teen_w_bmi_1 %>% 
   ggplot(aes(bmi, total_pa_wk_min)) +
-  geom_point(aes(color = TSEX)) +
-  geom_smooth(method = lm) +
+  geom_point(aes(color = TSEX), alpha = 0.5) +
+  geom_smooth(method = lm, color = "black") +
   facet_wrap(~TETHRAC_RC.y) +
   theme_minimal() +
   labs(y = "Total Physical Activity per Week",
        x = "Body Mass Index",
        title = "Physical Activity and Body Mass Index",
-       subtitle = "by Race/Ethnicity")
+       subtitle = "by Race/Ethnicity",
+       color = "Sex",
+       tag = "Figure 1")
 ```
 
 
 ## Second Visualization
+```{r PA-by-school-type}
+teen_w_bmi_1 %>% 
+  ggplot(aes(total_pa_wk_min, TSCHLTYPE)) +
+  geom_density_ridges(aes(fill = factor(TSEX)),
+                      alpha = 0.7) +
+  scale_fill_viridis_d(option = "magma", name = "Sex") +
+  theme_ridges() +
+  labs(title = "Total Physical Activity by School Type",
+       x = "School Type",
+       y = "Total Weekly Physical Activity (min)",
+       tag = "Figure 2")
+```
+
+
+
+# I added a geom_density_ridges for second viz but can change if don't like
 Stacked Bar Chart showing
 
-
+# also removed library janitor as we did not use it
 
 
 *__!!!!EVERYTHING BELOW THIS IS OLD DRAFT OR PRACTICE CHUNKS!!!!__*
@@ -139,6 +157,22 @@ teen_w_bmi_1 %>%
   scale_y_continuous(breaks = seq(0, 300, by = 25)) +
   facet_wrap(~TETHRAC_RC.y) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+## Practice chunk GGPLOT ESME
+```{r another-option-for-viz}
+teen_w_bmi_1 %>% 
+  ggplot(aes(total_pa_wk_min, TSCHLTYPE)) +
+  geom_density_ridges(aes(fill = factor(TSEX)),
+                      alpha = 0.7) +
+  scale_fill_viridis_d(option = "magma", name = "Sex") +
+  theme_ridges() +
+  labs(title = "Total Physical Activity by School Type",
+       x = "School Type",
+       y = "Total Weekly Physical Activity (min)",
+       tag = "Figure 2")
+
+### labs() not centered...
 ```
 
 
