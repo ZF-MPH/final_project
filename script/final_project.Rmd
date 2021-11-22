@@ -81,21 +81,20 @@ teen_w_bmi_1 %>%
 ```
 
 ## First Visualization
-```{r}
+```{r PA-BMI-race-ethnicity}
 teen_w_bmi_1 %>% 
   ggplot(aes(bmi, total_pa_wk_min)) +
   geom_point(aes(color = TSEX), alpha = 0.5) +
   geom_smooth(method = lm, color = "black") +
   facet_wrap(~TETHRAC_RC.y) +
   theme_minimal() +
-  labs(y = "Total Physical Activity per Week",
+  labs(y = "Predicted Weekly MVPA (min)",
        x = "Body Mass Index",
        title = "Physical Activity and Body Mass Index",
        subtitle = "by Race/Ethnicity",
        color = "Sex",
        tag = "Figure 1")
 ```
-
 
 ## Second Visualization
 ```{r PA-by-school-type}
@@ -107,7 +106,7 @@ teen_w_bmi_1 %>%
   theme_ridges() +
   labs(title = "Total Physical Activity by School Type",
        x = "School Type",
-       y = "Total Weekly Physical Activity (min)",
+       y = "Predicted Weekly MVPA (min)",
        tag = "Figure 2")
 ```
 
