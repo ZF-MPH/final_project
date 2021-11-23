@@ -27,6 +27,9 @@ phys_act <- import(here("data", "Teen-PA-SPSS(1) copy.zip"))
 ```
 
 ## Joined Data
+Our data was split into 2 files for size/downloadable reasons so we
+joined it to make one usable data file. We then wanted to characterize only select variables, hence the use of the select--> characterize functions. We could not find a way to characterize the data set as a whole without turning some variables' values to NA. W
+We chose full join because we wanted all of the variables to appropriately merge the data sets.
 ```{r}
 joined_set <- demographics %>% full_join(phys_act, by = "PID")
 
@@ -55,8 +58,8 @@ teenage_only <- final_joined %>%
   filter(TAGE.x >= 3)
 ```
 
-## Teenagers With BMI Calculated )
-__teen_w_bmi_1__ is our data set to use and create visualizations BUT __we still need to add the pivot longer and wider to this and save as object *cleaned_data* . That will be the absolute final data set__
+## Teenagers With BMI Calculated 
+__teen_w_bmi_1__ is our data set to use and create visualizations BUT __we have not yet added the pivot longer and wider to this and save as object *cleaned_data* bc we want feedback on it first. Teen_w_bmi_1 is very clean as is and pivot longer helps us look at the data differently (visualizations to come!) but not necessarily 'cleaner'. We welcome feedback because we declare the absolute final data set__
 ```{r}
 teen_w_bmi <- teenage_only %>% 
   mutate(height_meters = XTHEIGHTCM_RC / 100) %>% 
@@ -80,7 +83,36 @@ teen_w_bmi_1 %>%
 # Need to make it to where we can see 5 total characters (so we can have two decimal points for the mean_total_PA)
 ```
 
-## First Visualization
+## Pivot Longer with Total Exercise Per Week by When It Is Completed
+```{r Pivot_Longer}
+
+longer_teen_bmi_1 <- teen_w_bmi_1 %>% 
+  pivot_longer(
+    cols = starts_with("XTPREDWEEK"), 
+    names_to = "MVPA_when", 
+    values_to = "minutes", 
+    values_drop_na = TRUE) 
+
+#Will use longer_teen_bmi_1 for plot in future to visualize exercise/week/location by school or gender
+```
+
+##Pivot Wider 
+```{r}
+ wider_teen_w_bmi_1 <- teen_w_bmi_1 %>% 
+   summarize(mean_bmi = mean(bmi), TGRADE) %>%
+   pivot_wider(
+     names_from = TGRADE, 
+     values_from = mean_bmi)
+
+#need to figure out how to get each value to show, even if duplicates. suggestions welcomed! the value_fn wasn't working for me
+# because of the types of variables and data, it doesn't make sense to use pivot wider on the actual set. so used a separate descriptive table to pivot wider instead. not adding this to the *cleaned_data* because it makes it messier. 
+
+
+```
+# Visualizations
+
+## First Visualizations
+
 ```{r PA-BMI-race-ethnicity}
 teen_w_bmi_1 %>% 
   ggplot(aes(bmi, total_pa_wk_min)) +
@@ -112,184 +144,4 @@ teen_w_bmi_1 %>%
 
 
 
-# I added a geom_density_ridges for second viz but can change if don't like
-Stacked Bar Chart showing
-
-# also removed library janitor as we did not use it
-
-
-*__!!!!EVERYTHING BELOW THIS IS OLD DRAFT OR PRACTICE CHUNKS!!!!__*
-__ALL FINALIZED CODING SHOULD GO IN THE TOP PORTION - Practice can be done below this line!__
-
-
-##Practice Chunk GGPLOT from ESME
-Zach added line of best fit and eliminated not ascertained responses __probably ready to be moved into finalized section__
-```{r}
-teen_w_bmi_1 %>% 
-  ggplot(aes(bmi, total_pa_wk_min)) +
-  geom_point(aes(color = TSEX)) +
-  geom_smooth(method = lm) +
-  facet_wrap(~TETHRAC_RC.y) +
-  theme_minimal() +
-  labs(y = "Total Physical Activity per Week",
-       x = "Body Mass Index",
-       title = "Physical Activity and Body Mass Index",
-       subtitle = "by Race/Ethnicity")
-```
-
-##Practice Chunk GGPLOT ZACH
-this one shows counts of students age by grade
-```{r}
-teen_w_bmi_1 %>% 
-  ggplot(aes(x = TGRADE, fill = TAGE.y)) +
-  geom_bar(position = "stack") +
-  scale_y_continuous(breaks = seq(0, 300, by = 25)) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-```
-
-##Practice Chunk GGPLOT ZACH NUMBER 2
-this one shows counts of students age by grade faceted by race/ethnicity
-```{r}
-teen_w_bmi_1 %>% 
-  ggplot(aes(x = TGRADE, fill = TAGE.y)) +
-  geom_bar(position = "stack") +
-  scale_y_continuous(breaks = seq(0, 300, by = 25)) +
-  facet_wrap(~TETHRAC_RC.y) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-```
-
-## Practice chunk GGPLOT ESME
-```{r another-option-for-viz}
-teen_w_bmi_1 %>% 
-  ggplot(aes(total_pa_wk_min, TSCHLTYPE)) +
-  geom_density_ridges(aes(fill = factor(TSEX)),
-                      alpha = 0.7) +
-  scale_fill_viridis_d(option = "magma", name = "Sex") +
-  theme_ridges() +
-  labs(title = "Total Physical Activity by School Type",
-       x = "School Type",
-       y = "Total Weekly Physical Activity (min)",
-       tag = "Figure 2")
-
-### labs() not centered...
-```
-
-
-## Join Data
-Datasets were **joined** (demographics dataset and physical activity dataset)
-```{r}
-library(tidyverse)
-library(rio)
-library(here)
-library(janitor)
-demographics <- import(here("data", "Teen-Demographic-SPSS(1) copy.zip"))
-
-phys_act <- import(here("data", "Teen-PA-SPSS(1) copy.zip"))
-
-# joined demographics and PA-questionnaire by participant ID "PID"
-joined_set <- demographics %>% full_join(phys_act, by = "PID")
-
-#try left_join and decide which to use, based on what data/variables we want
-
-joined_set_revise <- demographics %>% left_join(phys_act, by = "PID")
-#suggestion from Prof Nese
-joined_set_revise %>% 
-  as_tibble() %>%
-  select(TSEX, TSCHLTYPE, TETHRAC_RC) %>% 
-  characterize(c(TSEX, TSCHLTYPE, TETHRAC_RC))
-#select so we only see what we're characterizing 
-
-# selecting only variables that we may use
-selected_variables <- joined_set %>% 
-  select(TAGE, TGRADE, TSEX, TSCHLTYPE, XTHEIGHTCM_RC, XTWEIGHTKG_RC, TETHRAC_RC, TPMPABAD, TPMPAWANT, TPMPAUPST, TPMPAIMPT, XTPREDWEEKS, XTPREDWEEKOFS, XTPREDWEEKW)
-
-selected_variables %>% as_tibble() %>%
-  characterize(c("TSEX", "TSCHLTYPE", "TETHRAC_RC"))  
-
-#characterize race, sex, and school type 
-```
-
-## Filter and Mutate
-We **filtered** to only show _high school respondents_ & then used **mutate()**
-to create a column for BMI (calculated from height/weight
-```{r}
-highschool_only <- selected_variables %>% 
-  filter(TAGE >= 14 | TAGE < 18) %>% 
-  filter(!is.na(TAGE))
-
-HS_W_BMI <- highschool_only %>% 
-  mutate(Height_M = XTHEIGHTCM_RC / 100) %>% 
-  mutate(BMI = XTWEIGHTKG_RC/(Height_M^2)) %>%
-  mutate(total_PA = XTPREDWEEKS + XTPREDWEEKOFS + XTPREDWEEKW)
-```
-
-## Commit 3
-```{r}
-HS_W_BMI %>%
-  group_by(TSCHLTYPE, TSEX) %>%
-  summarize(mean_age = mean(TAGE), mean_total_PA = mean(total_PA, na.rm= TRUE))
-
-longer_hs <- highschool_only %>% 
-  pivot_longer(
-    cols = starts_with("XTPREDWEEK"), 
-    names_to = "MVPA(source)", 
-    values_to = "minutes", 
-    values_drop_na = TRUE)
-
-longer_hs2 <- highschool_only %>% 
-  pivot_longer(
-    cols = starts_with ("TPMPA"), 
-    names_to = "TP")
-
- wider_hs <- highschool_only %>%
-    pivot_wider(
-     names_from = c(TGRADE,TSEX), 
-     values_from = XTPREDWEEKS,
-     values_fn = list(XTPREDWEEKS = mean))
- #doesn't make sense so will change, but it does make it wider! 
-
-#come back to this to get rid of the -9
-# next up: pivot_wider and pivot_longer
-```
-
-ZACH TEST (Turns all "-9" into "NA") (This worked)
-```{r}
-library(naniar)
-NAs_HS_W_BMI <- HS_W_BMI %>% 
-  replace_with_na_all(condition = ~.x == -9)
-```
-
-ZACH TEST to get rid of all rows containing NA (this worked)
-```{r}
-omit_HS_W_BMI <- na.omit(NAs_HS_W_BMI)
-
-# TRIED to use characterize here, and it did nothing
-```
-## Esme Visual Plot- In Progress..
-```{r}
-omit_HS_W_BMI %>% 
-  ggplot(aes(BMI, total_PA)) +
-  geom_point(aes(color = TSEX)) +
-  facet_wrap(~TETHRAC_RC) +
-  theme_minimal() +
-  labs(y = "Total Physical Activity per Week",
-       x = "Body Mass Index",
-       title = "Physical Activity and Body Mass Index")
-
-# may look for something other than BMI
-```
-
-## ZACH trying to fix characterize issues
-```{r}
-join1 <- joined_set %>% 
-  as_tibble() %>%
-  select(PID, TSEX, TSCHLTYPE, TETHRAC_RC, TGRADE) %>% 
-  characterize(c(TSEX, TSCHLTYPE, TETHRAC_RC, TGRADE))
-
-join2 <- joined_set %>% 
-  select(PID,XTHEIGHTCM_RC, XTWEIGHTKG_RC, TETHRAC_RC, TPMPABAD, TPMPAWANT, TPMPAUPST, TPMPAIMPT, XTPREDWEEKS, XTPREDWEEKOFS, XTPREDWEEKW)
-
-try_joined_set <- join2 %>% full_join(join1, by = "PID")
-```
-**try_joined_set** worked!!!!!
 
