@@ -93,11 +93,15 @@ longer_teen_bmi_1 <- teen_w_bmi_1 %>%
     values_to = "minutes", 
     values_drop_na = TRUE) 
 
-#Will use longer_teen_bmi_1 for plot in future to visualize exercise/week/location by school or gender
+#Will use longer_teen_bmi_1 for plot in future to visualize weekly exercise/location by school or gender
 ```
 
 ##Pivot Wider 
+
 ```{r}
+
+# because of the types of variables and data, it doesn't make sense to use pivot wider on the actual set. so used a separate descriptive table to pivot wider instead. not adding this to the *cleaned_data* because it makes it messier.
+
  wider_teen_w_bmi_1 <- teen_w_bmi_1 %>% 
    summarize(mean_bmi = mean(bmi), TGRADE) %>%
    pivot_wider(
@@ -105,13 +109,13 @@ longer_teen_bmi_1 <- teen_w_bmi_1 %>%
      values_from = mean_bmi)
 
 #need to figure out how to get each value to show, even if duplicates. suggestions welcomed! the value_fn wasn't working for me
-# because of the types of variables and data, it doesn't make sense to use pivot wider on the actual set. so used a separate descriptive table to pivot wider instead. not adding this to the *cleaned_data* because it makes it messier. 
+ 
 
 
 ```
 # Visualizations
 
-## First Visualizations
+## First Visualization
 
 ```{r PA-BMI-race-ethnicity}
 teen_w_bmi_1 %>% 
