@@ -99,6 +99,16 @@ longer_teen_bmi_1 <- teen_w_bmi_1 %>%
     values_to = "minutes", 
     values_drop_na = TRUE) 
 
+longer_teen_bmi_1 <- teen_w_bmi_1 %>% 
+  pivot_longer(
+    cols = starts_with("XTPREDWEEK"), 
+    names_to = "MVPA_when", 
+    values_to = "minutes", 
+    values_drop_na = TRUE) %>%
+  select(TGRADE, MVPA_when, minutes)
+
+longer_teen_bmi_1
+
 #Will use longer_teen_bmi_1 for plot in future to visualize weekly exercise/location by school or gender
 ```
 
@@ -109,7 +119,8 @@ longer_teen_bmi_1 <- teen_w_bmi_1 %>%
 # because of the types of variables and data, it doesn't make sense to use pivot wider on the actual set. so used a separate descriptive table to pivot wider instead. not adding this to the *cleaned_data* because it makes it messier.
 
  wider_teen_w_bmi_1 <- teen_w_bmi_1 %>% 
-   summarize(mean_bmi = mean(bmi), TGRADE) %>%
+  group_by(TGRADE) %>%
+   summarize(mean_bmi = mean(bmi)) %>%
    pivot_wider(
      names_from = TGRADE, 
      values_from = mean_bmi)
@@ -117,6 +128,28 @@ longer_teen_bmi_1 <- teen_w_bmi_1 %>%
 #need to figure out how to get each value to show, even if duplicates. suggestions welcomed! the value_fn wasn't working for me
 
 ```
+# Summary Table
+```{r}
+summary_table <- teen_w_bmi_1 %>%
+  group_by(TSCHLTYPE, TSEX) %>%
+  summarize(mean_ht_m =mean(height_meters), sd_ht_m= sd(height_meters), mean_wt=mean(XTWEIGHTKG_RC), sd_wt= sd(XTWEIGHTKG_RC), mean_weekofs= mean(XTPREDWEEKOFS), sd_weekofs= sd(XTPREDWEEKOFS), mean_weekw= mean(XTPREDWEEKW), sd_weekw=sd(XTPREDWEEKW), mean_age=mean(TAGE.x +10), sd_age=sd(TAGE.x +10), mean_bmi= mean(bmi), sd_bmi=sd(bmi), mean_total_pa_wk_min = mean(total_pa_wk_min), sd_total_pa_wk_min=sd(total_pa_wk_min)) 
+
+summary_table
+
+#can convert into bar chart and error bars (to show standard error and standard deviation)
+#can pipe it into kable and label cols OR can change column names above
+
+summary_table2 <- teen_w_bmi_1 %>%
+  group_by(TSEX) %>%
+  summarize(mean_ht_m =mean(height_meters), sd_ht_m= sd(height_meters), mean_wt=mean(XTWEIGHTKG_RC), sd_wt= sd(XTWEIGHTKG_RC), mean_weekofs= mean(XTPREDWEEKOFS), sd_weekofs= sd(XTPREDWEEKOFS), mean_weekw= mean(XTPREDWEEKW), sd_weekw=sd(XTPREDWEEKW), mean_age=mean(TAGE.x +10), sd_age=sd(TAGE.x +10), mean_bmi= mean(bmi), sd_bmi=sd(bmi), mean_total_pa_wk_min = mean(total_pa_wk_min), sd_total_pa_wk_min=sd(total_pa_wk_min)) 
+    
+summary_table2
+
+#can plot it and color by school type or facet by school type 
+            
+```
+
+
 # Visualizations
 
 ## First Visualization
