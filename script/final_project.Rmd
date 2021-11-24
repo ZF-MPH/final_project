@@ -3,6 +3,7 @@ title: "final_project_mkdn"
 author: "Zach F, Elizabeth B, & Esmeralda C"
 date: "11/10/2021"
 output: html_document
+bibliography: final_project.bib
 ---
 
 ```{r setup, include=FALSE}
@@ -152,3 +153,4 @@ teen_w_bmi_1 %>%
 
 
 
+\newpage
