@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 What we still need:
 
-Some better summary table/visualizations for descriptive statistics
+- Some better summary table/visualizations for descriptive statistics
 
 ##Load Packages
 ```{r}
