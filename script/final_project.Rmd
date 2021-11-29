@@ -178,7 +178,7 @@ summary_table <- teen_w_bmi_1 %>%
   group_by(TSCHLTYPE, TSEX) %>%
   summarize(mean_ht_m =mean(height_meters), sd_ht_m= sd(height_meters), mean_wt=mean(XTWEIGHTKG_RC), sd_wt= sd(XTWEIGHTKG_RC), mean_weekofs= mean(XTPREDWEEKOFS), sd_weekofs= sd(XTPREDWEEKOFS), mean_weekw= mean(XTPREDWEEKW), sd_weekw=sd(XTPREDWEEKW), mean_age=mean(TAGE.x +10), sd_age=sd(TAGE.x +10), mean_bmi= mean(bmi), sd_bmi=sd(bmi), mean_total_pa_wk_min = mean(total_pa_wk_min), sd_total_pa_wk_min=sd(total_pa_wk_min))
 
-summary_table %>%
+
 
 
 #can convert into bar chart and error bars (to show standard error and standard deviation)
@@ -223,8 +223,8 @@ teen_w_bmi_1 %>%
   scale_fill_viridis_d(option = "magma", name = "Sex") +
   theme_ridges() +
   labs(title = "Total Physical Activity by School Type",
-       x = "School Type",
-       y = "Predicted Weekly MVPA (min)",
+       y = "School Type",
+       x = "Predicted Weekly MVPA (min)",
        tag = "Figure 2")
 ```
 
