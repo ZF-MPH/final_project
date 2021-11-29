@@ -97,8 +97,8 @@ longer_teen_bmi_1 <- teen_w_bmi_1 %>%
     cols = starts_with("XTPREDWEEK"), 
     names_to = "MVPA_when", 
     values_to = "minutes", 
-    values_drop_na = TRUE) %>%
-  select(PID, TSEX, TGRADE, bmi, MVPA_when, minutes) 
+    values_drop_na = TRUE) %>% 
+  select(PID, TSEX, TGRADE, TSCHLTYPE,bmi, MVPA_when, minutes) 
 
 #played around with visualizations below. many need to be made pretty with colors and labels
   
@@ -113,6 +113,17 @@ longer_teen_bmi_1 %>%
        y= "Total Number of Minutes Spend Exercising",
        fill= "Sex")
 #need to order the y axis 
+
+longer_teen_bmi_1 %>%
+  ggplot(aes(TSCHLTYPE, minutes))+
+  geom_col(aes(fill=TSEX), 
+           position= "dodge") +
+  facet_wrap(~MVPA_when) +
+  theme(axis.text.x = element_text(angle=90, hjust = 1)) +
+  labs(title= "Pattern of Physical Activity by Grade and Sex",
+       x= "Type of School",
+       y= "Total Number of Minutes Spend Exercising",
+       fill= "Sex")
 
 
 ggplot(longer_teen_bmi_1, aes(minutes, MVPA_when)) +
@@ -131,12 +142,23 @@ longer_teen_bmi_1 %>%
   ggplot(aes(MVPA_when, minutes)) +
   geom_boxplot() +
   facet_wrap(~TSEX)
+
+longer_teen_bmi_1 %>%
+  ggplot(aes(MVPA_when, minutes)) +
+  geom_boxplot() +
+  facet_wrap(~TSCHLTYPE) +
+  theme(axis.text.x = element_text(angle=90, hjust = 1)) +
+  labs(title= "Pattern of Physical Activity by Type of School",
+       x= "Grade in School",
+       y= "Total Number of Minutes Spend Exercising")
+
 #this one is pretty cool to show differences by sex
 
 longer_teen_bmi_1 %>%
   ggplot(aes(MVPA_when, minutes)) +
   geom_boxplot() +
-  facet_wrap(~TGRADE)
+  facet_wrap(~TGRADE) 
+ 
 #need to tidy up the labels 
 
 
@@ -163,13 +185,14 @@ longer_teen_bmi_1
 # because of the types of variables and data, it doesn't make sense to use pivot wider on the actual set. so used a separate descriptive table to pivot wider instead. not adding this to the *cleaned_data* because it makes it messier.
 
  wider_teen_w_bmi_1 <- teen_w_bmi_1 %>% 
-  group_by(TGRADE) %>%
-   summarize(mean_bmi = mean(bmi)) %>%
-   pivot_wider(
-     names_from = TGRADE, 
+  group_by(TSCHLTYPE) %>%
+  summarize(mean_bmi = mean(bmi)) %>%
+  pivot_wider(
+     names_from = TSCHLTYPE, 
      values_from = mean_bmi)
+#how to rename a row?
 
-#need to figure out how to get each value to show, even if duplicates. suggestions welcomed! the value_fn wasn't working for me
+
 
 ```
 # Summary Table
@@ -177,6 +200,7 @@ longer_teen_bmi_1
 summary_table <- teen_w_bmi_1 %>%
   group_by(TSCHLTYPE, TSEX) %>%
   summarize(mean_ht_m =mean(height_meters), sd_ht_m= sd(height_meters), mean_wt=mean(XTWEIGHTKG_RC), sd_wt= sd(XTWEIGHTKG_RC), mean_weekofs= mean(XTPREDWEEKOFS), sd_weekofs= sd(XTPREDWEEKOFS), mean_weekw= mean(XTPREDWEEKW), sd_weekw=sd(XTPREDWEEKW), mean_age=mean(TAGE.x +10), sd_age=sd(TAGE.x +10), mean_bmi= mean(bmi), sd_bmi=sd(bmi), mean_total_pa_wk_min = mean(total_pa_wk_min), sd_total_pa_wk_min=sd(total_pa_wk_min))
+
 
 
 
