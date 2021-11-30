@@ -3,15 +3,17 @@ title: "final_project_mkdn"
 author: "Zach F, Elizabeth B, & Esmeralda C"
 date: "11/10/2021"
 output: html_document
+bibliography: final_project.bib
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE} 
+# For the setup, maybe set up the echo to be FALSE, and warnings/message = FALSE
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
 What we still need:
 
-Some better summary table/visualizations for descriptive statistics
+- Some better summary table/visualizations for descriptive statistics
 
 ##Load Packages
 ```{r}
@@ -33,7 +35,7 @@ phys_act <- import(here("data", "Teen-PA-SPSS(1) copy.zip"))
 
 ## Joined Data
 Our data was split into 2 files for size/downloadable reasons so we
-joined it to make one usable data file. We then wanted to characterize only select variables, hence the use of the select--> characterize functions. We could not find a way to characterize the data set as a whole without turning some variables' values to NA. W
+<!-- joined it to make one usable data file. We then wanted to characterize only select variables, hence the use of the select--> characterize functions. We could not find a way to characterize the data set as a whole without turning some variables' values to NA.  -->this is interesting because I try to select the varaibles, and I had NAs as well. 
 We chose full join because we wanted all of the variables to appropriately merge the data sets.
 ```{r}
 joined_set <- demographics %>% full_join(phys_act, by = "PID")
@@ -64,7 +66,7 @@ teenage_only <- final_joined %>%
 ```
 
 ## Teenagers With BMI Calculated 
-__teen_w_bmi_1__ is our data set to use and create visualizations BUT __we have not yet added the pivot longer and wider to this and save as object *cleaned_data* bc we want feedback on it first. Teen_w_bmi_1 is very clean as is and pivot longer helps us look at the data differently (visualizations to come!) but not necessarily 'cleaner'. We welcome feedback because we declare the absolute final data set__
+<!-- __teen_w_bmi_1__ is our data set to use and create visualizations BUT __we have not yet added the pivot longer and wider to this and save as object *cleaned_data* bc we want feedback on it first. Teen_w_bmi_1 is very clean as is and pivot longer helps us look at the data differently (visualizations to come!) but not necessarily 'cleaner'. We welcome feedback because we declare the absolute final data set__  --> I love the way you all cleaned the data. I am wondering if you guys can take out some variables that you probably won't use for Teem_w_bmi_1 just to make it "cleaner"? It has 20 variables now but I guess you won't use them all for this. 
 ```{r}
 teen_w_bmi <- teenage_only %>% 
   mutate(height_meters = XTHEIGHTCM_RC / 100) %>% 
@@ -83,7 +85,12 @@ teen_w_bmi_1 %>%
   group_by(TSCHLTYPE, TSEX) %>%
   summarize(mean_age = mean(TAGE.x + 10), 
             mean_total_PA = mean(total_pa_wk_min)) %>% 
-  kable()
+  kable(
+    # col.names = c(""), <-you can use this function to rename column names 
+    # digit = 2)<- this would set the number with 2 decimals
+    # row_spec(5, bold = T, color = "white", background = "gray") <- this would help you to highlight certain rows  %>%
+  # kable_styling(bootstrap_options = c("striped", "hover")) <- if you want the table to look a little pretty
+  )
 
 # Need to make it to where we can see 5 total characters (so we can have two decimal points for the mean_total_PA)
 ```
@@ -96,9 +103,92 @@ longer_teen_bmi_1 <- teen_w_bmi_1 %>%
     cols = starts_with("XTPREDWEEK"), 
     names_to = "MVPA_when", 
     values_to = "minutes", 
-    values_drop_na = TRUE) 
+    values_drop_na = TRUE) %>% 
+  select(PID, TSEX, TGRADE, TSCHLTYPE,bmi, MVPA_when, minutes) 
 
-#Will use longer_teen_bmi_1 for plot in future to visualize weekly exercise/location by school or gender
+#played around with visualizations below. many need to be made pretty with colors and labels <- again, here I would "shorten" the dataset before play around with it
+  
+longer_teen_bmi_1 %>%
+  ggplot(aes(TGRADE, minutes))+
+  geom_col(aes(fill=TSEX), 
+           position= "dodge") +
+  facet_wrap(~MVPA_when) +
+  theme(axis.text.x = element_text(angle=90, hjust = 1)) +
+  labs(title= "Pattern of Physical Activity by Grade and Sex",
+       x= "Grade in School",
+       y= "Total Number of Minutes Spend Exercising",
+       fill= "Sex")
+#need to order the y axis 
+
+longer_teen_bmi_1 %>%
+  ggplot(aes(TSCHLTYPE, minutes))+
+  geom_col(aes(fill=TSEX), 
+           position= "dodge") +
+  facet_wrap(~MVPA_when) +
+  theme(axis.text.x = element_text(angle=90, hjust = 1)) +
+  labs(title= "Pattern of Physical Activity by School Type and Sex",
+       x= "Type of School",
+       y= "Total Number of Minutes Spend Exercising",
+       fill= "Sex")
+
+longer_teen_bmi_1 %>%
+  ggplot(aes(MVPA_when, minutes)) +
+  geom_boxplot() +
+  facet_wrap(~TSCHLTYPE) +
+  theme(axis.text.x = element_text(angle=90, hjust = 1)) +
+  labs(title= "Pattern of Physical Activity by Type of School",
+       x= "Grade in School",
+       y= "Total Number of Minutes Spend Exercising")
+
+ggplot(longer_teen_bmi_1, aes(minutes, TSCHLTYPE)) +
+  geom_density_ridges(aes(fill = factor(MVPA_when)), 
+                        alpha= 0.5) +
+  labs(title= "Pattern of Physical Activity by School Type and Sex",
+       x= "Minutes of Physical Activity",
+       y= "School Type",
+       fill= "When PA is Completed")
+
+#this one is pretty cool to show differences by sex and school type
+
+ggplot(longer_teen_bmi_1, aes(minutes, MVPA_when)) +
+  geom_density_ridges(aes(fill = factor(TSEX)), 
+                        alpha= 0.5)
+
+ggplot(longer_teen_bmi_1, aes(minutes, MVPA_when)) +
+  geom_density_ridges(aes(fill = factor(TGRADE)), 
+                        alpha= 0.5)
+
+
+
+
+longer_teen_bmi_1 %>%
+  ggplot(aes(MVPA_when, minutes)) +
+  geom_boxplot() +
+  facet_wrap(~TSEX)
+
+
+
+longer_teen_bmi_1 %>%
+  ggplot(aes(MVPA_when, minutes)) +
+  geom_boxplot() +
+  facet_wrap(~TGRADE) 
+ 
+#need to tidy up the labels 
+
+longer_teen_bmi_1 %>%
+  ggplot(aes(minutes, bmi)) +
+  geom_point() +
+  geom_smooth() +
+  facet_wrap(~MVPA_when)
+#so many BMI points I find it hard to interpret. but the code works!
+
+longer_teen_bmi_1
+
+#I love those figures you made! I found several websites that helped me with plotting that I'd like to share with you all. You may need to install a couple more packages to use the features but have fun playing with those!
+
+#http://zevross.com/blog/2014/08/04/beautiful-plotting-in-r-a-ggplot2-cheatsheet-3/
+#https://cameronpatrick.com/post/2020/03/beautiful-bar-charts-ggplot/
+#https://www.cedricscherer.com/2019/08/05/a-ggplot2-tutorial-for-beautiful-plotting-in-r/
 ```
 
 ##Pivot Wider 
@@ -107,15 +197,60 @@ longer_teen_bmi_1 <- teen_w_bmi_1 %>%
 
 # because of the types of variables and data, it doesn't make sense to use pivot wider on the actual set. so used a separate descriptive table to pivot wider instead. not adding this to the *cleaned_data* because it makes it messier.
 
- wider_teen_w_bmi_1 <- teen_w_bmi_1 %>% 
-   summarize(mean_bmi = mean(bmi), TGRADE) %>%
-   pivot_wider(
-     names_from = TGRADE, 
-     values_from = mean_bmi)
+#share in presentation worked on pivot wider to actually get information we care about
+ wider_teen_w_bmi_1 <-
+  
+  grouped_teen_w_bmi_1 <- teen_w_bmi_1 %>% 
+  select(PID, TSCHLTYPE, bmi,total_pa_wk_min) %>%
+  group_by(TSCHLTYPE) %>%
+  mutate(mean_bmi = mean(bmi), mean_total_pa = mean(total_pa_wk_min)) %>%
+  
+  #pivot longer to combine school and bmi and school and pa, then pivot wider?
+  
+  pivot_wider(
+     names_from = TSCHLTYPE, 
+     values_from = mean_total_pa)
+#how to rename a row?
+#Are you looking for renaming a row or a column? I dont see why you would want to rename a row. 
 
-#need to figure out how to get each value to show, even if duplicates. suggestions welcomed! the value_fn wasn't working for me
+
+
 
 ```
+# Summary Table
+```{r}
+
+summary_table1 <- teen_w_bmi_1 %>%
+  group_by(TSCHLTYPE, TSEX) %>%
+  summarize(mean_weekofs= mean(XTPREDWEEKOFS), sd_weekofs= sd(XTPREDWEEKOFS), mean_weekw= mean(XTPREDWEEKW), sd_weekw=sd(XTPREDWEEKW), mean_age=mean(TAGE.x +10), sd_age=sd(TAGE.x +10), mean_bmi= mean(bmi), sd_bmi=sd(bmi), mean_total_pa_wk_min = mean(total_pa_wk_min), sd_total_pa_wk_min=sd(total_pa_wk_min)) %>%
+  kable()
+#change column names and see what happens when we knit 
+
+#I think you may want to summarize before group_by, otherwise the table won't run. 
+
+
+summary_table2 <- teen_w_bmi_1 %>%
+  group_by(TSCHLTYPE, TSEX) %>%
+  summarize(mean_ht_m =mean(height_meters), sd_ht_m= sd(height_meters), mean_wt=mean(XTWEIGHTKG_RC), sd_wt= sd(XTWEIGHTKG_RC), mean_weekofs= mean(XTPREDWEEKOFS), sd_weekofs= sd(XTPREDWEEKOFS), mean_weekw= mean(XTPREDWEEKW), sd_weekw=sd(XTPREDWEEKW), mean_age=mean(TAGE.x +10), sd_age=sd(TAGE.x +10), mean_bmi= mean(bmi), sd_bmi=sd(bmi), mean_total_pa_wk_min = mean(total_pa_wk_min), sd_total_pa_wk_min=sd(total_pa_wk_min))
+
+
+
+
+
+#can convert into bar chart and error bars (to show standard error and standard deviation)
+#can pipe it into kable and label cols OR can change column names above
+
+summary_table2 <- teen_w_bmi_1 %>%
+  group_by(TSEX) %>%
+  summarize(mean_ht_m =mean(height_meters), sd_ht_m= sd(height_meters), mean_wt=mean(XTWEIGHTKG_RC), sd_wt= sd(XTWEIGHTKG_RC), mean_weekofs= mean(XTPREDWEEKOFS), sd_weekofs= sd(XTPREDWEEKOFS), mean_weekw= mean(XTPREDWEEKW), sd_weekw=sd(XTPREDWEEKW), mean_age=mean(TAGE.x +10), sd_age=sd(TAGE.x +10), mean_bmi= mean(bmi), sd_bmi=sd(bmi), mean_total_pa_wk_min = mean(total_pa_wk_min), sd_total_pa_wk_min=sd(total_pa_wk_min)) 
+    
+summary_table2
+
+#can plot it and color by school type or facet by school type 
+            
+```
+
+
 # Visualizations
 
 ## First Visualization
@@ -133,6 +268,7 @@ teen_w_bmi_1 %>%
        subtitle = "by Race/Ethnicity",
        color = "Sex",
        tag = "Figure 1")
+#Figure looks really great!
 ```
 
 ## Second Visualization
@@ -144,11 +280,119 @@ teen_w_bmi_1 %>%
   scale_fill_viridis_d(option = "magma", name = "Sex") +
   theme_ridges() +
   labs(title = "Total Physical Activity by School Type",
-       x = "School Type",
-       y = "Predicted Weekly MVPA (min)",
-       tag = "Figure 2")
+       y = "School Type",
+       x = "Predicted Weekly MVPA (min)",
+       tag = "Figure.2")
+
+#This look cool as well!
+```
+
+
+Down here is Zach messing around with an ANOVA
+```{r}
+teen_w_bmi_1 %>% 
+  group_by(TSCHLTYPE) %>% 
+  summarise(count = n(),
+            mean = mean(total_pa_wk_min),
+            sd = sd(total_pa_wk_min))
+
+library(ggpubr) 
+#Try to load all packages in the setup chunk
+
+teen_w_bmi_1 %>%
+  ggboxplot(x = "TSCHLTYPE", y = "total_pa_wk_min",
+            add = c("mean_se"),
+            color = "TSCHLTYPE", 
+            palette = c("yellow", 
+                        "blue", 
+                        "red", 
+                        "black"),
+            order = c("Another kind of school", 
+                      "Home-schooled",
+                      "Public school", 
+                      "Private school"),
+            ylab = "Minutes/Wk of PA",
+            xlab = "School Type",
+            title = "Weekly PA by School Type") +
+  theme(axis.text.x = element_text(angle=90, hjust = 1))
+#This boxplot is not showing any difference besides colors. Is this the one you are looking for? 
+
+teen_w_bmi_1 %>% 
+  ggline(x = "TSCHLTYPE", 
+         y = "total_pa_wk_min", 
+       add = c("mean_se"), 
+       order = c("Another kind of school", 
+                 "Home-schooled", 
+                 "Public school", 
+                 "Private school"),
+       ylab = "Minutes/Wk of PA",
+       xlab = "School Type") +
+  theme(axis.text.x = element_text(angle=90, hjust = 1))
+#Love this one! Maybe you can set the fig.height and fig.width so the labels wont go off chart. 
+
+# Differnece in MVPA by Gender
+
+teen_w_bmi_1 %>% 
+  ggline(x = "TSEX", 
+         y = "total_pa_wk_min", 
+       add = c("mean_se"), 
+       order = c("Male",
+                 "Female"),
+       ylab = "Minutes/Wk of PA",
+       xlab = "Gender") +
+  theme(axis.text.x = element_text(angle=90, hjust = 1))
+
+anova_gender <- aov(total_pa_wk_min ~ TSEX, data = teen_w_bmi_1)
+summary(anova_gender)
+
+tukey_gender <- TukeyHSD(anova_gender)
+summary(anova_gender)
+
+tidy_tuke_gender <- tidy(tukey_gender, digits = 20)
+
+tidy_tuke_gender %>% 
+  kable()
+
+# No significant difference in weekly PA between school type
+anova_school <- aov(total_pa_wk_min ~ TSCHLTYPE, data = teen_w_bmi_1)
+summary(anova_school)
+
+
+# This shows that the younger one is, the greater the MVPA/WK regardless of grade
+teen_w_bmi_1 %>% 
+  ggboxplot(x = "TAGE.y", 
+            y = "total_pa_wk_min",
+            add = c("mean_se"),
+            color = "TAGE.y", 
+            palette = c("yellow", "blue", 
+                        "red", "black",
+                        "grey"),
+            order = c("13 years old", "14 years old",
+                      "15 years old", "16 years old",
+                      "17 years old"),
+            ylab = "Minutes/Wk of PA",
+            xlab = "Age") + 
+  facet_wrap(~TGRADE) +
+  theme(axis.text.x = element_text(angle=90, hjust = 1))
+
+
+# Significant differences in PA min/wk based upon age
+anova_age <- aov(total_pa_wk_min ~ TAGE.y, data = teen_w_bmi_1)
+summary(anova_age)
+tukey_age <- TukeyHSD(anova_age)
+# This shows full p-values. all are p < .05
+print(tukey_age, digits = 20)
+
+#Make output as a table
+library(broom)
+tidy_tukey <- tidy(tukey_age, digits = 20)
+
+tidy_tukey %>% 
+  kable(digits = 15)
+#Awesome! Maybe you can set the digits to be 2 or 3 so you can make a better table! 
+#I enjoyed reading your codes overall! Excellent job!
 ```
 
 
 
-
+\newpage
