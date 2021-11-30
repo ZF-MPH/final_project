@@ -253,6 +253,105 @@ teen_w_bmi_1 %>%
 ```
 
 
+Down here is Zach messing around with an ANOVA
+```{r}
+teen_w_bmi_1 %>% 
+  group_by(TSCHLTYPE) %>% 
+  summarise(count = n(),
+            mean = mean(total_pa_wk_min),
+            sd = sd(total_pa_wk_min))
+
+library(ggpubr)
+
+teen_w_bmi_1 %>%
+  ggboxplot(x = "TSCHLTYPE", y = "total_pa_wk_min",
+            add = c("mean_se"),
+            color = "TSCHLTYPE", 
+            palette = c("yellow", 
+                        "blue", 
+                        "red", 
+                        "black"),
+            order = c("Another kind of school", 
+                      "Home-schooled",
+                      "Public school", 
+                      "Private school"),
+            ylab = "Minutes/Wk of PA",
+            xlab = "School Type",
+            title = "Weekly PA by School Type") +
+  theme(axis.text.x = element_text(angle=90, hjust = 1))
+
+teen_w_bmi_1 %>% 
+  ggline(x = "TSCHLTYPE", 
+         y = "total_pa_wk_min", 
+       add = c("mean_se"), 
+       order = c("Another kind of school", 
+                 "Home-schooled", 
+                 "Public school", 
+                 "Private school"),
+       ylab = "Minutes/Wk of PA",
+       xlab = "School Type") +
+  theme(axis.text.x = element_text(angle=90, hjust = 1))
+
+# Differnece in MVPA by Gender
+
+teen_w_bmi_1 %>% 
+  ggline(x = "TSEX", 
+         y = "total_pa_wk_min", 
+       add = c("mean_se"), 
+       order = c("Male",
+                 "Female"),
+       ylab = "Minutes/Wk of PA",
+       xlab = "Gender") +
+  theme(axis.text.x = element_text(angle=90, hjust = 1))
+
+anova_gender <- aov(total_pa_wk_min ~ TSEX, data = teen_w_bmi_1)
+summary(anova_gender)
+
+tukey_gender <- TukeyHSD(anova_gender)
+summary(anova_gender)
+
+tidy_tuke_gender <- tidy(tukey_gender, digits = 20)
+
+tidy_tuke_gender %>% 
+  kable()
+
+# No significant difference in weekly PA between school type
+anova_school <- aov(total_pa_wk_min ~ TSCHLTYPE, data = teen_w_bmi_1)
+summary(anova_school)
+
+
+# This shows that the younger one is, the greater the MVPA/WK regardless of grade
+teen_w_bmi_1 %>% 
+  ggboxplot(x = "TAGE.y", 
+            y = "total_pa_wk_min",
+            add = c("mean_se"),
+            color = "TAGE.y", 
+            palette = c("yellow", "blue", 
+                        "red", "black",
+                        "grey"),
+            order = c("13 years old", "14 years old",
+                      "15 years old", "16 years old",
+                      "17 years old"),
+            ylab = "Minutes/Wk of PA",
+            xlab = "Age") + 
+  facet_wrap(~TGRADE) +
+  theme(axis.text.x = element_text(angle=90, hjust = 1))
+
+# Significant differences in PA min/wk based upon age
+anova_age <- aov(total_pa_wk_min ~ TAGE.y, data = teen_w_bmi_1)
+summary(anova_age)
+tukey_age <- TukeyHSD(anova_age)
+# This shows full p-values. all are p < .05
+print(tukey_age, digits = 20)
+
+#Make output as a table
+library(broom)
+tidy_tukey <- tidy(tukey_age, digits = 20)
+
+tidy_tukey %>% 
+  kable(digits = 15)
+```
+
 
 
 \newpage
