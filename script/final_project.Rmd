@@ -120,28 +120,10 @@ longer_teen_bmi_1 %>%
            position= "dodge") +
   facet_wrap(~MVPA_when) +
   theme(axis.text.x = element_text(angle=90, hjust = 1)) +
-  labs(title= "Pattern of Physical Activity by Grade and Sex",
+  labs(title= "Pattern of Physical Activity by School Type and Sex",
        x= "Type of School",
        y= "Total Number of Minutes Spend Exercising",
        fill= "Sex")
-
-
-ggplot(longer_teen_bmi_1, aes(minutes, MVPA_when)) +
-  geom_density_ridges(aes(fill = factor(TSEX)), 
-                        alpha= 0.5)
-
-ggplot(longer_teen_bmi_1, aes(minutes, MVPA_when)) +
-  geom_density_ridges(aes(fill = factor(TGRADE)), 
-                        alpha= 0.5)
-
-ggplot(longer_teen_bmi_1, aes(minutes, TGRADE)) +
-  geom_density_ridges(aes(fill = factor(MVPA_when)), 
-                        alpha= 0.5)
-
-longer_teen_bmi_1 %>%
-  ggplot(aes(MVPA_when, minutes)) +
-  geom_boxplot() +
-  facet_wrap(~TSEX)
 
 longer_teen_bmi_1 %>%
   ggplot(aes(MVPA_when, minutes)) +
@@ -152,7 +134,33 @@ longer_teen_bmi_1 %>%
        x= "Grade in School",
        y= "Total Number of Minutes Spend Exercising")
 
-#this one is pretty cool to show differences by sex
+ggplot(longer_teen_bmi_1, aes(minutes, TSCHLTYPE)) +
+  geom_density_ridges(aes(fill = factor(MVPA_when)), 
+                        alpha= 0.5) +
+  labs(title= "Pattern of Physical Activity by School Type and Sex",
+       x= "Minutes of Physical Activity",
+       y= "School Type",
+       fill= "When PA is Completed")
+
+#this one is pretty cool to show differences by sex and school type
+
+ggplot(longer_teen_bmi_1, aes(minutes, MVPA_when)) +
+  geom_density_ridges(aes(fill = factor(TSEX)), 
+                        alpha= 0.5)
+
+ggplot(longer_teen_bmi_1, aes(minutes, MVPA_when)) +
+  geom_density_ridges(aes(fill = factor(TGRADE)), 
+                        alpha= 0.5)
+
+
+
+
+longer_teen_bmi_1 %>%
+  ggplot(aes(MVPA_when, minutes)) +
+  geom_boxplot() +
+  facet_wrap(~TSEX)
+
+
 
 longer_teen_bmi_1 %>%
   ggplot(aes(MVPA_when, minutes)) +
@@ -161,8 +169,6 @@ longer_teen_bmi_1 %>%
  
 #need to tidy up the labels 
 
-
-
 longer_teen_bmi_1 %>%
   ggplot(aes(minutes, bmi)) +
   geom_point() +
@@ -170,12 +176,7 @@ longer_teen_bmi_1 %>%
   facet_wrap(~MVPA_when)
 #so many BMI points I find it hard to interpret. but the code works!
 
-
-  
-
 longer_teen_bmi_1
-
-#Will use longer_teen_bmi_1 for plot in future to visualize weekly exercise/location by school or gender
 ```
 
 ##Pivot Wider 
@@ -184,20 +185,36 @@ longer_teen_bmi_1
 
 # because of the types of variables and data, it doesn't make sense to use pivot wider on the actual set. so used a separate descriptive table to pivot wider instead. not adding this to the *cleaned_data* because it makes it messier.
 
- wider_teen_w_bmi_1 <- teen_w_bmi_1 %>% 
+#share in presentation worked on pivot wider to actually get information we care about
+ wider_teen_w_bmi_1 <-
+  
+  grouped_teen_w_bmi_1 <- teen_w_bmi_1 %>% 
+  select(PID, TSCHLTYPE, bmi,total_pa_wk_min) %>%
   group_by(TSCHLTYPE) %>%
-  summarize(mean_bmi = mean(bmi)) %>%
+  mutate(mean_bmi = mean(bmi), mean_total_pa = mean(total_pa_wk_min)) %>%
+  
+  #pivot longer to combine school and bmi and school and pa, then pivot wider?
+  
   pivot_wider(
      names_from = TSCHLTYPE, 
-     values_from = mean_bmi)
+     values_from = mean_total_pa)
 #how to rename a row?
+
 
 
 
 ```
 # Summary Table
 ```{r}
-summary_table <- teen_w_bmi_1 %>%
+
+summary_table1 <- teen_w_bmi_1 %>%
+  group_by(TSCHLTYPE, TSEX) %>%
+  summarize(mean_weekofs= mean(XTPREDWEEKOFS), sd_weekofs= sd(XTPREDWEEKOFS), mean_weekw= mean(XTPREDWEEKW), sd_weekw=sd(XTPREDWEEKW), mean_age=mean(TAGE.x +10), sd_age=sd(TAGE.x +10), mean_bmi= mean(bmi), sd_bmi=sd(bmi), mean_total_pa_wk_min = mean(total_pa_wk_min), sd_total_pa_wk_min=sd(total_pa_wk_min)) %>%
+  kable()
+#change column names and see what happens when we knit 
+
+
+summary_table2 <- teen_w_bmi_1 %>%
   group_by(TSCHLTYPE, TSEX) %>%
   summarize(mean_ht_m =mean(height_meters), sd_ht_m= sd(height_meters), mean_wt=mean(XTWEIGHTKG_RC), sd_wt= sd(XTWEIGHTKG_RC), mean_weekofs= mean(XTPREDWEEKOFS), sd_weekofs= sd(XTPREDWEEKOFS), mean_weekw= mean(XTPREDWEEKW), sd_weekw=sd(XTPREDWEEKW), mean_age=mean(TAGE.x +10), sd_age=sd(TAGE.x +10), mean_bmi= mean(bmi), sd_bmi=sd(bmi), mean_total_pa_wk_min = mean(total_pa_wk_min), sd_total_pa_wk_min=sd(total_pa_wk_min))
 
