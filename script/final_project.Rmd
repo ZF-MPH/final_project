@@ -197,8 +197,6 @@ longer_teen_bmi_1
     names_from = TSCHLTYPE, 
     values_from = total_pa_wk_min)
   
-
-
    
   
   #pivot longer to combine school and bmi and school and pa, then pivot wider?
