@@ -9,11 +9,9 @@ bibliography: final_project.bib
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
+<!-- I was not able to knit the document to my machine-CG -->
 What we still need:
-
 - Some better summary table/visualizations for descriptive statistics
-
 ##Load Packages
 ```{r}
 library(tidyverse)
@@ -23,6 +21,7 @@ library(naniar)
 library(ggridges)
 library(knitr)
 ```
+<!-- consider installing {papaja} to knit document in APA format -->
 
 ##Load Data
 ```{r}
@@ -178,6 +177,8 @@ longer_teen_bmi_1 %>%
 
 longer_teen_bmi_1
 ```
+
+<!-- Very cool figures showing the patterns of physical activity by sex and school type. This is a minor detail but I found the labels on the x axis a little difficult to read in vertical orientation. Perhaps consider pivoting to horizontal or slanted orientation so it is a little easier to read?-CG -->
 
 ##Pivot Wider 
 
@@ -377,6 +378,6 @@ tidy_tukey %>%
 
 ```
 
-
+<!-- BEAUTIFUL data visualization, well-done! -->
 
 \newpage
