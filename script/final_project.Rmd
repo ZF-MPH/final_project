@@ -186,19 +186,24 @@ longer_teen_bmi_1
 # because of the types of variables and data, it doesn't make sense to use pivot wider on the actual set. so used a separate descriptive table to pivot wider instead. not adding this to the *cleaned_data* because it makes it messier.
 
 #share in presentation worked on pivot wider to actually get information we care about
- wider_teen_w_bmi_1 <-
+
   
-  grouped_teen_w_bmi_1 <- teen_w_bmi_1 %>% 
-  select(PID, TSCHLTYPE, bmi,total_pa_wk_min) %>%
+ wider_teen_bmi_1 <- teen_w_bmi_1 %>% 
+  select(PID, TSCHLTYPE, total_pa_wk_min) %>%
   group_by(TSCHLTYPE) %>%
-  mutate(mean_bmi = mean(bmi), mean_total_pa = mean(total_pa_wk_min)) %>%
+  mutate(mean_totalpa = mean(total_pa_wk_min)) %>%
+  pivot_longer()
+  pivot_wider(
+    names_from = TSCHLTYPE, 
+    values_from = total_pa_wk_min)
+  
+
+
+   
   
   #pivot longer to combine school and bmi and school and pa, then pivot wider?
   
-  pivot_wider(
-     names_from = TSCHLTYPE, 
-     values_from = mean_total_pa)
-#how to rename a row?
+ 
 
 
 
@@ -209,14 +214,18 @@ longer_teen_bmi_1
 
 summary_table1 <- teen_w_bmi_1 %>%
   group_by(TSCHLTYPE, TSEX) %>%
-  summarize(mean_weekofs= mean(XTPREDWEEKOFS), sd_weekofs= sd(XTPREDWEEKOFS), mean_weekw= mean(XTPREDWEEKW), sd_weekw=sd(XTPREDWEEKW), mean_age=mean(TAGE.x +10), sd_age=sd(TAGE.x +10), mean_bmi= mean(bmi), sd_bmi=sd(bmi), mean_total_pa_wk_min = mean(total_pa_wk_min), sd_total_pa_wk_min=sd(total_pa_wk_min)) %>%
-  kable()
-#change column names and see what happens when we knit 
+  summarize(mean_weekofs= mean(XTPREDWEEKOFS), sd_weekofs= sd(XTPREDWEEKOFS), mean_weekw= mean(XTPREDWEEKW), sd_weekw=sd(XTPREDWEEKW), mean_age=mean(TAGE.x +10), mean_bmi= mean(bmi), sd_bmi=sd(bmi), mean_total_pa_wk_min = mean(total_pa_wk_min), sd_total_pa_wk_min=sd(total_pa_wk_min)) %>%
+  kable(caption = "Summary Table for Key Variables", 
+        col.names = c("School Type", "Sex", "Mean minutes of PA out of School", "SD of minutes of PA out of School", "Mean minutes of PA on weekend", "SD of minutes of PA on weekend", "Mean age", "Mean BMI", "SD of BMI", "Mean Weekly Minutes of PA", "SD of Weekly Minutes of PA"), 
+        digits = 2)
+
 
 
 summary_table2 <- teen_w_bmi_1 %>%
   group_by(TSCHLTYPE, TSEX) %>%
   summarize(mean_ht_m =mean(height_meters), sd_ht_m= sd(height_meters), mean_wt=mean(XTWEIGHTKG_RC), sd_wt= sd(XTWEIGHTKG_RC), mean_weekofs= mean(XTPREDWEEKOFS), sd_weekofs= sd(XTPREDWEEKOFS), mean_weekw= mean(XTPREDWEEKW), sd_weekw=sd(XTPREDWEEKW), mean_age=mean(TAGE.x +10), sd_age=sd(TAGE.x +10), mean_bmi= mean(bmi), sd_bmi=sd(bmi), mean_total_pa_wk_min = mean(total_pa_wk_min), sd_total_pa_wk_min=sd(total_pa_wk_min))
+
+summary_table1
 
 
 
@@ -269,9 +278,9 @@ teen_w_bmi_1 %>%
        tag = "Figure 2")
 ```
 
-
 Down here is Zach messing around with an ANOVA
 ```{r}
+
 teen_w_bmi_1 %>% 
   group_by(TSCHLTYPE) %>% 
   summarise(count = n(),
@@ -367,6 +376,7 @@ tidy_tukey <- tidy(tukey_age, digits = 20)
 
 tidy_tukey %>% 
   kable(digits = 15)
+
 ```
 
 
