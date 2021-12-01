@@ -13,7 +13,9 @@ What we still need:
 
 Some better summary table/visualizations for descriptive statistics
 
-##Load Packages
+## Load Packages
+I inserted a space after the heading level hashtag
+
 ```{r}
 library(tidyverse)
 library(rio)
@@ -23,7 +25,9 @@ library(ggridges)
 library(knitr)
 ```
 
-##Load Data
+## Load Data
+I inserted a space after the heading level hashtag
+
 ```{r}
 demographics <- import(here("data", "Teen-Demographic-SPSS(1) copy.zip"))
 
@@ -81,11 +85,13 @@ teen_w_bmi_1 <- subset(teen_w_bmi_1, TGRADE!="Not ascertained")
 ```{r}
 teen_w_bmi_1 %>%
   group_by(TSCHLTYPE, TSEX) %>%
-  summarize(mean_age = mean(TAGE.x + 10), 
-            mean_total_PA = mean(total_pa_wk_min)) %>% 
+  summarize(mean_age = round(mean(TAGE.x + 10), 2), 
+            mean_total_PA = round(mean(total_pa_wk_min), 2)) %>% 
   kable()
 
 # Need to make it to where we can see 5 total characters (so we can have two decimal points for the mean_total_PA)
+
+# One way to accomplish this would be to to wrap the round() function around the mean calculation. I've added it above so you can see. 
 ```
 
 ## Pivot Longer with Total Exercise Per Week by When It Is Completed
@@ -114,6 +120,8 @@ longer_teen_bmi_1 <- teen_w_bmi_1 %>%
      values_from = mean_bmi)
 
 #need to figure out how to get each value to show, even if duplicates. suggestions welcomed! the value_fn wasn't working for me
+
+# My group ended up needing to use pivot_wider with a table of descriptives as well! We had luck summarizing a set of descriptive statistics (for scores from a depression assessment) by two variables (gender and income). Then we pivoted_wider using one of the grouping variables (gender). I wonder if what's not working here is that there are only two columns in the table you're trying to pivot_wider (mean_bmi and grade)?
 
 ```
 # Visualizations
@@ -144,9 +152,11 @@ teen_w_bmi_1 %>%
   scale_fill_viridis_d(option = "magma", name = "Sex") +
   theme_ridges() +
   labs(title = "Total Physical Activity by School Type",
-       x = "School Type",
-       y = "Predicted Weekly MVPA (min)",
+       x = "Predicted Weekly MVPA (min)",
+       y = "School Type",
        tag = "Figure 2")
+
+# I think the labels for the x- and y-axis were reversed
 ```
 
 
