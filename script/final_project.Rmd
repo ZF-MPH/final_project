@@ -192,16 +192,12 @@ longer_teen_bmi_1
   select(PID, TSCHLTYPE, total_pa_wk_min) %>%
   group_by(TSCHLTYPE) %>%
   mutate(mean_totalpa = mean(total_pa_wk_min)) %>%
-  pivot_longer()
   pivot_wider(
     names_from = TSCHLTYPE, 
     values_from = total_pa_wk_min)
-  
-   
-  
-  #pivot longer to combine school and bmi and school and pa, then pivot wider?
-  
- 
+
+
+    
 
 
 
