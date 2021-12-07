@@ -67,6 +67,10 @@ teenage_only <- final_joined %>%
 ## Teenagers With BMI Calculated 
 __teen_w_bmi_1__ is our data set to use and create visualizations BUT __we have not yet added the pivot longer and wider to this and save as object *cleaned_data* bc we want feedback on it first. Teen_w_bmi_1 is very clean as is and pivot longer helps us look at the data differently (visualizations to come!) but not necessarily 'cleaner'. We welcome feedback because we declare the absolute final data set__
 ```{r}
+
+### Calculating BMI - {mutate} 
+#_To calculate BMI, we utilized the {mutate} function._
+
 teen_w_bmi <- teenage_only %>% 
   mutate(height_meters = XTHEIGHTCM_RC / 100) %>% 
   mutate(bmi = XTWEIGHTKG_RC/(height_meters^2)) %>%
