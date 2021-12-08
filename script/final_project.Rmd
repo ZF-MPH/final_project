@@ -10,10 +10,6 @@ bibliography: final_project.bib
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-What we still need:
-
-- Some better summary table/visualizations for descriptive statistics
-
 ##Load Packages
 ```{r}
 library(tidyverse)
@@ -23,6 +19,7 @@ library(naniar)
 library(ggridges)
 library(knitr)
 library(gtsummary)
+library(forcats)
 ```
 
 ##Load Data
@@ -34,7 +31,7 @@ phys_act <- import(here("data", "Teen-PA-SPSS(1) copy.zip"))
 ```
 
 ## Joined Data
-  _Our data was split into two files for size/downloadable reasons: adolescent demographic and adolescent physical activity surveys. Each of these files contained a column containing the variable "PID", or participant identification. The PIDs are unique to each individual who completed the surveys. We used this variable to join these two data sets. This was done using the full join function from the dplyr package. (CITE DPLYR PACKAGE) This was used so we could retain all variables contained within both data sets for each specific participant identified by their unique PID. After fully joining these two data sets, we then needed to tidy up data using functions from the tidyverse and dplyr packages (cite tidyverse and dplyr)._
+  _Our data was split into two files for size/downloadable reasons: adolescent demographic and adolescent physical activity surveys. Each of these files contained a column containing the variable "PID", or participant identification. The PIDs are unique to each individual who completed the surveys. We used this variable to join these two data sets. This was done using the full join function from the dplyr package. This was used so we could retain all variables contained within both data sets for each specific participant identified by their unique PID. After fully joining these two data sets, we then needed to tidy up data using functions from the tidyverse and dplyr packages_
 ## Cleaning data - {select},  {characterize}, and {filter} 
 _We then wanted to characterize only select variables, hence the use of the {select}--> {characterize} functions. We could not find a way to characterize the data set as a whole without turning some variables' values to NA, so we selected certain variables, characterized them, then rejoined the data sets with the newly characterized data._
 
@@ -61,18 +58,17 @@ final_joined <- full_joined_set %>%
 
 
 ## Ages 13-18 (teenagers) only
+_We chose to focus on adolescence and filtered our new joined and characterized data set to include only participants ages greater than 13. The data used single numbers to equate to age. 1= 11, 2= 12, 3= 13 etc, so we filtered for age >= 3 (equating to 13)_
 ```{r}
 teenage_only <- final_joined %>% 
   filter(TAGE.x >= 3)
 ```
 
-## Teenagers With BMI Calculated 
-__teen_w_bmi_1__ is our data set to use and create visualizations BUT __we have not yet added the pivot longer and wider to this and save as object *cleaned_data* bc we want feedback on it first. Teen_w_bmi_1 is very clean as is and pivot longer helps us look at the data differently (visualizations to come!) but not necessarily 'cleaner'. We welcome feedback because we declare the absolute final data set__
+## Teenagers With BMI Calculated {mutate}
+_To calculate BMI, we utilized the {mutate} function_
+__teen_w_bmi_1__ is our cleaned data set. 
+_We completed {pivot_wider} and {pivot_longer} but did not include in the cleaned data set because it made it 'messy'._
 ```{r}
-
-### Calculating BMI - {mutate} 
-#_To calculate BMI, we utilized the {mutate} function._
-
 teen_w_bmi <- teenage_only %>% 
   mutate(height_meters = XTHEIGHTCM_RC / 100) %>% 
   mutate(bmi = XTWEIGHTKG_RC/(height_meters^2)) %>%
@@ -83,35 +79,48 @@ teen_w_bmi_1 <- subset(teen_w_bmi_1, TSCHLTYPE!="Not ascertained")
 teen_w_bmi_1 <- subset(teen_w_bmi_1, TGRADE!="Not ascertained")
 ```
 
-
-## Grouping by School Type and Sex to Summarize Mean Age and Mean Total Weekly PA
-### Calculating Mean Physical Activity - {summarize} and {group_by} 
-_The {group_by} function allowed us to organize our data by school type and sex to appropriately assess for associations between those demographic variables and average total weekly physical activity._
+## Calculating Mean Physical Activity and Mean Age according to school type and sex- {summarize} and {group_by} 
+_The {group_by} function allowed us to organize our data by school type and sex to calculate mean physical activity and mean age. This grouping was helpful for our description of the relevant data for our research questions. It also served as the building blocks to later appropriately assess for associations between those demographic variables and average total weekly physical activity._
 ```{r}
-teen_w_bmi_1 %>%
+grouped_data <- teen_w_bmi_1 %>%
   group_by(TSCHLTYPE, TSEX) %>%
-  summarize(mean_age = mean(TAGE.x + 10), 
-            mean_total_PA = mean(total_pa_wk_min)) %>% 
+  summarize(mean_age = round(mean(TAGE.x + 10), digits = 2),
+            mean_total_PA = round(mean(total_pa_wk_min), digits = 2)) %>% 
   kable()
 
-# Need to make it to where we can see 5 total characters (so we can have two decimal points for the mean_total_PA)
+teen_w_bmi_1$TSCHLTYPE <- factor(teen_w_bmi_1$TSCHLTYPE)
+
+rev_teen_w_bmi_1 <- teen_w_bmi_1%>%
+   group_by(TSCHLTYPE, TSEX) %>%
+  mutate(mean_age = round(mean(TAGE.x + 10), digits = 2),
+            mean_total_PA = round(mean(total_pa_wk_min), digits = 2), 
+         PA_pct_in_school = (mean(XTPREDWEEKS)/mean_total_PA) *100, 
+         PA_pct_out_school = (mean(XTPREDWEEKOFS)/mean_total_PA) *100,
+         PA_pct_wkend = (mean(XTPREDWEEKW)/mean_total_PA)*100) %>%
+  select(c("TSCHLTYPE", "TSEX", "PA_pct_in_school", "PA_pct_out_school", "PA_pct_wkend")) %>%
+  mutate(TSCHLTYPE = fct_recode(TSCHLTYPE, 
+                                "PA_pct_in_school" = "Pct PA in School", 
+                                "PA_pct_out_school" = "Pct PA out of School", 
+                                "PA_pct_wkend" = "Pct PA on Weekend"))
+         
+
+
+ 
+  
+
 ```
 
-## Pivot Longer with Total Exercise Per Week by When It Is Completed
-### {pivot_Longer} for organzing when physical activity occurs
-_The initial data set divided when physical activity was completed by during the week in school (XTPREDWEEKS), during the week out of school (XTPREDWEEKOFS), and on the weekend(XTPREDWEEKW). Using {pivot_longer}, we combined the variables of when/where the physical activity was completed to better visualize across the pattern of when/where and any associations with demographic variables._
+## {pivot_Longer} for organzing when physical activity occurs
+_The initial data set divided when physical activity was completed by during the week in school (XTPREDWEEKS), during the week out of school (XTPREDWEEKOFS), and on the weekend(XTPREDWEEKW). Using {pivot_longer}, we combined the variables of when/where the physical activity was completed to explore when/where physical activity was completed across different school types and demographic variables. We  used various ggplot functions to visualize the data and associations. _
 ```{r Pivot_Longer}
-
 longer_teen_bmi_1 <- teen_w_bmi_1 %>% 
   pivot_longer(
     cols = starts_with("XTPREDWEEK"), 
     names_to = "MVPA_when", 
     values_to = "minutes", 
     values_drop_na = TRUE) %>% 
-  select(PID, TSEX, TGRADE, TSCHLTYPE,bmi, MVPA_when, minutes) 
+  select(PID, TSEX, TGRADE, TSCHLTYPE, MVPA_when, minutes) 
 
-#played around with visualizations below. many need to be made pretty with colors and labels
-  
 longer_teen_bmi_1 %>%
   ggplot(aes(TGRADE, minutes))+
   geom_col(aes(fill=TSEX), 
@@ -121,8 +130,7 @@ longer_teen_bmi_1 %>%
   labs(title= "Pattern of Physical Activity by Grade and Sex",
        x= "Grade in School",
        y= "Total Number of Minutes Spend Exercising",
-       fill= "Sex")
-#need to order the y axis 
+       fill= "Sex") 
 
 longer_teen_bmi_1 %>%
   ggplot(aes(TSCHLTYPE, minutes))+
@@ -132,7 +140,7 @@ longer_teen_bmi_1 %>%
   theme(axis.text.x = element_text(angle=90, hjust = 1)) +
   labs(title= "Pattern of Physical Activity by School Type and Sex",
        x= "Type of School",
-       y= "Total Number of Minutes Spend Exercising",
+       y= "Total Number of Minutes Spent Exercising",
        fill= "Sex")
 
 longer_teen_bmi_1 %>%
@@ -141,56 +149,22 @@ longer_teen_bmi_1 %>%
   facet_wrap(~TSCHLTYPE) +
   theme(axis.text.x = element_text(angle=90, hjust = 1)) +
   labs(title= "Pattern of Physical Activity by Type of School",
-       x= "Grade in School",
+       x= "When Physical Activity was Completed",
        y= "Total Number of Minutes Spend Exercising")
 
-ggplot(longer_teen_bmi_1, aes(minutes, TSCHLTYPE)) +
-  geom_density_ridges(aes(fill = factor(MVPA_when)), 
-                        alpha= 0.5) +
-  labs(title= "Pattern of Physical Activity by School Type and Sex",
-       x= "Minutes of Physical Activity",
-       y= "School Type",
-       fill= "When PA is Completed")
 
-#this one is pretty cool to show differences by sex and school type
-
+#this one is pretty cool to show differences by sex and school type - answer- no difference! 
 ggplot(longer_teen_bmi_1, aes(minutes, MVPA_when)) +
   geom_density_ridges(aes(fill = factor(TSEX)), 
-                        alpha= 0.5)
-
-ggplot(longer_teen_bmi_1, aes(minutes, MVPA_when)) +
-  geom_density_ridges(aes(fill = factor(TGRADE)), 
-                        alpha= 0.5)
-
-
-
-
-longer_teen_bmi_1 %>%
-  ggplot(aes(MVPA_when, minutes)) +
-  geom_boxplot() +
-  facet_wrap(~TSEX)
-
-
-
-longer_teen_bmi_1 %>%
-  ggplot(aes(MVPA_when, minutes)) +
-  geom_boxplot() +
-  facet_wrap(~TGRADE) 
- 
-#need to tidy up the labels 
-
-longer_teen_bmi_1 %>%
-  ggplot(aes(minutes, bmi)) +
-  geom_point() +
-  geom_smooth() +
-  facet_wrap(~MVPA_when)
-#so many BMI points I find it hard to interpret. but the code works!
-
-longer_teen_bmi_1
+                        alpha= 0.5) +
+  labs(title = "Physical Activity according ot Sex", 
+       x= "Weekly Minutes of Physical Activity", 
+       y= "When- During week in school, out of school, or on weekend",
+       fill= "Sex")
 ```
 
 ##Pivot Wider 
-Because of the relatively clean data set and types of variables we have, it was challenging to find a useful way to incorporate {pivot_wider} for our research questions. So, we experimented with {pivot_wider} with the TSCHLTYPE variable and broke it down into each school type with participants' total minutes of physical activity by week and the average physical activity. It succeeded in pivoting wider and organizing the mean and total weekly physical activity by school type. However, because each participant only attended one school, there are 'NA' values for the schools they did not attend, making the resulting data frame appear messier. After much trial and error, we resolved that we cannot remove the 'NA's at this time, because they are necessary for the formatting of the data set. 
+_Because of the relatively clean data set and types of variables we have, it was challenging to find a useful way to incorporate {pivot_wider} for our research questions. So, we experimented with {pivot_wider} with the TSCHLTYPE variable and broke it down into each school type with participants' total minutes of physical activity by week and the average physical activity. It succeeded in pivoting wider and organizing the mean and total weekly physical activity by school type. However, because each participant only attended one school, there are 'NA' values for the schools they did not attend, making the resulting data frame appear messier. After much trial and error, we resolved that we cannot remove the 'NA's at this time, because they are necessary for the formatting of the data set._
 
 ```{r}
 
@@ -198,34 +172,18 @@ wider_teen_bmi_1 <- teen_w_bmi_1 %>%
   select(PID, TSCHLTYPE, total_pa_wk_min) %>%
   group_by(TSCHLTYPE) %>%
   mutate(mean_totalpa = mean(total_pa_wk_min)) %>%
-  pivot_wider(
-    names_from = TSCHLTYPE, 
-    values_from = total_pa_wk_min)
+  pivot_wider(names_from = TSCHLTYPE, 
+    values_from = total_pa_wk_min),
+
 ```
 # Summary Table
 ```{r}
 
 summary_table1 <- teen_w_bmi_1 %>%
-  group_by(TSCHLTYPE, TSEX) %>%
-  summarize(mean_weekofs= mean(XTPREDWEEKOFS), sd_weekofs= sd(XTPREDWEEKOFS), mean_weekw= mean(XTPREDWEEKW), sd_weekw=sd(XTPREDWEEKW), mean_age=mean(TAGE.x +10), mean_bmi= mean(bmi), sd_bmi=sd(bmi), mean_total_pa_wk_min = mean(total_pa_wk_min), sd_total_pa_wk_min=sd(total_pa_wk_min)) 
-
-colnames(summary_table1) <- c("School Type", "Sex", "Mean minutes of PA out of School", "SD of minutes of PA out of School", "Mean minutes of PA on weekend", "SD of minutes of PA on weekend", "Mean age", "Mean BMI", "SD of BMI", "Mean Weekly Minutes of PA", "SD of Weekly Minutes of PA")
-
-summary_table1 %>%
+  group_by(TSCHLTYPE,TSEX) %>%
+  summarize(mean_age=mean(TAGE.x +10), mean_bmi= mean(bmi), mean_weekofs= mean(XTPREDWEEKOFS), mean_weekw= mean(XTPREDWEEKW),  mean_total_pa_wk_min = mean(total_pa_wk_min)) %>%
   kable(caption = "Table 2. Pattern of Physical Activity by School Type",
-        col.names = c("School Type", "Sex", "Mean minutes of PA out of School", "SD of minutes of PA out of School", "Mean minutes of PA on weekend", "SD of minutes of PA on weekend", "Mean age", "Mean BMI", "SD of BMI", "Mean Weekly Minutes of PA", "SD of Weekly Minutes of PA"), 
-        digits = 2)
-
-
-
-summary_table2 <- teen_w_bmi_1 %>%
-  group_by(TSCHLTYPE, TSEX) %>%
-  summarize(mean_ht_m =mean(height_meters), sd_ht_m= sd(height_meters), mean_wt=mean(XTWEIGHTKG_RC), sd_wt= sd(XTWEIGHTKG_RC), mean_weekofs= mean(XTPREDWEEKOFS), sd_weekofs= sd(XTPREDWEEKOFS), mean_weekw= mean(XTPREDWEEKW), sd_weekw=sd(XTPREDWEEKW), mean_age=mean(TAGE.x +10), sd_age=sd(TAGE.x +10), mean_bmi= mean(bmi), sd_bmi=sd(bmi), mean_total_pa_wk_min = mean(total_pa_wk_min), sd_total_pa_wk_min=sd(total_pa_wk_min))
-
-
-
-
-#can plot it and color by school type or facet by school type 
+        col.names = c("School Type", "Sex", "Mean age", "Mean BMI","Mean minutes of PA out of School","Mean minutes of PA on weekend",  "Mean Weekly Minutes of PA"))
             
 ```
 
