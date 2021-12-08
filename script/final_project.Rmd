@@ -80,7 +80,7 @@ teen_w_bmi_1 <- subset(teen_w_bmi_1, TGRADE!="Not ascertained")
 ```
 
 ## Calculating Mean Physical Activity and Mean Age according to school type and sex- {summarize} and {group_by} 
-_The {group_by} function allowed us to organize our data by school type and sex to calculate mean physical activity and mean age. This grouping was helpful for our description of the relevant data for our research questions. It also served as the building blocks to later appropriately assess for associations between those demographic variables and average total weekly physical activity._
+_The {group_by} function allowed us to organize our data by school type and sex to calculate mean physical activity and mean age. This grouping was helpful for our description of the relevant data for our research questions. We ultimately did not ask a research question regarding when physical activity was completed - in school, out of school, or on weekend, but kept in the code because it is interesting)._ 
 ```{r}
 grouped_data <- teen_w_bmi_1 %>%
   group_by(TSCHLTYPE, TSEX) %>%
@@ -88,7 +88,8 @@ grouped_data <- teen_w_bmi_1 %>%
             mean_total_PA = round(mean(total_pa_wk_min), digits = 2)) %>% 
   kable()
 
-teen_w_bmi_1$TSCHLTYPE <- factor(teen_w_bmi_1$TSCHLTYPE)
+teen_w_bmi_1$TSCHLTYPE <- as.factor(teen_w_bmi_1$TSCHLTYPE) #school type
+levels(teen_w_bmi$TSCHLTYPE)
 
 rev_teen_w_bmi_1 <- teen_w_bmi_1%>%
    group_by(TSCHLTYPE, TSEX) %>%
@@ -98,15 +99,9 @@ rev_teen_w_bmi_1 <- teen_w_bmi_1%>%
          PA_pct_out_school = (mean(XTPREDWEEKOFS)/mean_total_PA) *100,
          PA_pct_wkend = (mean(XTPREDWEEKW)/mean_total_PA)*100) %>%
   select(c("TSCHLTYPE", "TSEX", "PA_pct_in_school", "PA_pct_out_school", "PA_pct_wkend")) %>%
-  mutate(TSCHLTYPE = fct_recode(TSCHLTYPE, 
-                                "PA_pct_in_school" = "Pct PA in School", 
-                                "PA_pct_out_school" = "Pct PA out of School", 
-                                "PA_pct_wkend" = "Pct PA on Weekend"))
-         
-
-
- 
   
+#need to figure out how to collapse them and need to make them factors first. 
+#the result will show a near table of percent of physical activity completed in/out of school/on weekend
 
 ```
 
