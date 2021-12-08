@@ -1,17 +1,21 @@
 ---
-title: "final_project_mkdn"
-author: "Zach F, Elizabeth B, & Esmeralda C"
-date: "11/10/2021"
-output: html_document
+title: "Final Project Data Script Rmd"
+author: "Zach Farley, Elizabeth Bates, & Esmeralda Castro"
+date: "12/08/2021"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 6
+    toc_float: true
+    code_folding: hide
 bibliography: final_project.bib
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
-##Load Packages
-```{r}
+```{r, echo= FALSE, include = FALSE}
 library(tidyverse)
 library(rio)
 library(here)
@@ -22,13 +26,13 @@ library(gtsummary)
 library(forcats)
 ```
 
-##Load Data
 ```{r}
 demographics <- import(here("data", "Teen-Demographic-SPSS(1) copy.zip"))
 
 phys_act <- import(here("data", "Teen-PA-SPSS(1) copy.zip"))
 
 ```
+# Data Cleaning
 
 ## Joined Data
   _Our data was split into two files for size/downloadable reasons: adolescent demographic and adolescent physical activity surveys. Each of these files contained a column containing the variable "PID", or participant identification. The PIDs are unique to each individual who completed the surveys. We used this variable to join these two data sets. This was done using the full join function from the dplyr package. This was used so we could retain all variables contained within both data sets for each specific participant identified by their unique PID. After fully joining these two data sets, we then needed to tidy up data using functions from the tidyverse and dplyr packages_
@@ -57,7 +61,7 @@ final_joined <- full_joined_set %>%
 ```
 
 
-## Ages 13-18 (teenagers) only
+## Ages 13-18 (teenagers) only {filter}
 _We chose to focus on adolescence and filtered our new joined and characterized data set to include only participants ages greater than 13. The data used single numbers to equate to age. 1= 11, 2= 12, 3= 13 etc, so we filtered for age >= 3 (equating to 13)_
 ```{r}
 teenage_only <- final_joined %>% 
@@ -100,7 +104,7 @@ rev_teen_w_bmi_1 <- teen_w_bmi_1%>%
          PA_pct_wkend = (mean(XTPREDWEEKW)/mean_total_PA)*100)
 ```
 
-## {pivot_Longer} for organzing when physical activity occurs
+## {pivot_longer} for organzing when physical activity occurs
 _The initial data set divided when physical activity was completed by during the week in school (XTPREDWEEKS), during the week out of school (XTPREDWEEKOFS), and on the weekend(XTPREDWEEKW). Using {pivot_longer}, we combined the variables of when/where the physical activity was completed to explore when/where physical activity was completed across different school types and demographic variables. We  used various ggplot functions to visualize the data and associations. _
 ```{r Pivot_Longer}
 longer_teen_bmi_1 <- teen_w_bmi_1 %>% 
@@ -156,7 +160,7 @@ ggplot(longer_teen_bmi_1, aes(minutes, MVPA_when)) +
        fill= "Sex")
 ```
 
-##Pivot Wider 
+##{pivot_wider} for School Type 
 _Because of the relatively clean data set and types of variables we have, it was challenging to find a useful way to incorporate {pivot_wider} for our research questions. So, we experimented with {pivot_wider} with the TSCHLTYPE variable and broke it down into each school type with participants' total minutes of physical activity by week and the average physical activity. It succeeded in pivoting wider and organizing the mean and total weekly physical activity by school type. However, because each participant only attended one school, there are 'NA' values for the schools they did not attend, making the resulting data frame appear messier. After much trial and error, we resolved that we cannot remove the 'NA's at this time, because they are necessary for the formatting of the data set._
 
 ```{r}
@@ -265,16 +269,7 @@ teen_w_bmi_1 %>%
        xlab = "Gender") +
   theme(axis.text.x = element_text(angle=90, hjust = 1))
 
-anova_gender <- aov(total_pa_wk_min ~ TSEX, data = teen_w_bmi_1)
-summary(anova_gender)
 
-tukey_gender <- TukeyHSD(anova_gender)
-summary(anova_gender)
-
-tidy_tuke_gender <- tidy(tukey_gender, digits = 20)
-
-tidy_tuke_gender %>% 
-  kable()
 
 # No significant difference in weekly PA between school type
 anova_school <- aov(total_pa_wk_min ~ TSCHLTYPE, data = teen_w_bmi_1)
@@ -311,6 +306,18 @@ tidy_tukey <- tidy(tukey_age, digits = 20)
 
 tidy_tukey %>% 
   kable(digits = 15)
+
+#this part wasn't knitting
+anova_gender <- aov(total_pa_wk_min ~ TSEX, data = teen_w_bmi_1)
+summary(anova_gender)
+
+tukey_gender <- TukeyHSD(anova_gender)
+summary(anova_gender)
+
+tidy_tuke_gender <- tidy(tukey_gender, digits = 20)
+
+tidy_tuke_gender %>% 
+  kable()
 
 ```
 
