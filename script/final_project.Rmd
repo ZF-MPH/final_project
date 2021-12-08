@@ -97,12 +97,7 @@ rev_teen_w_bmi_1 <- teen_w_bmi_1%>%
             mean_total_PA = round(mean(total_pa_wk_min), digits = 2), 
          PA_pct_in_school = (mean(XTPREDWEEKS)/mean_total_PA) *100, 
          PA_pct_out_school = (mean(XTPREDWEEKOFS)/mean_total_PA) *100,
-         PA_pct_wkend = (mean(XTPREDWEEKW)/mean_total_PA)*100) %>%
-  select(c("TSCHLTYPE", "TSEX", "PA_pct_in_school", "PA_pct_out_school", "PA_pct_wkend")) %>%
-  
-#need to figure out how to collapse them and need to make them factors first. 
-#the result will show a near table of percent of physical activity completed in/out of school/on weekend
-
+         PA_pct_wkend = (mean(XTPREDWEEKW)/mean_total_PA)*100)
 ```
 
 ## {pivot_Longer} for organzing when physical activity occurs
@@ -116,6 +111,7 @@ longer_teen_bmi_1 <- teen_w_bmi_1 %>%
     values_drop_na = TRUE) %>% 
   select(PID, TSEX, TGRADE, TSCHLTYPE, MVPA_when, minutes) 
 
+#Column Plot to show break down of when physical activity is completed by grade and sex
 longer_teen_bmi_1 %>%
   ggplot(aes(TGRADE, minutes))+
   geom_col(aes(fill=TSEX), 
@@ -127,6 +123,7 @@ longer_teen_bmi_1 %>%
        y= "Total Number of Minutes Spend Exercising",
        fill= "Sex") 
 
+#Column plot to show when physical activity is completed by type of school and sex
 longer_teen_bmi_1 %>%
   ggplot(aes(TSCHLTYPE, minutes))+
   geom_col(aes(fill=TSEX), 
@@ -138,6 +135,7 @@ longer_teen_bmi_1 %>%
        y= "Total Number of Minutes Spent Exercising",
        fill= "Sex")
 
+#Box plot to show when physical activity was completed by school type
 longer_teen_bmi_1 %>%
   ggplot(aes(MVPA_when, minutes)) +
   geom_boxplot() +
@@ -168,7 +166,7 @@ wider_teen_bmi_1 <- teen_w_bmi_1 %>%
   group_by(TSCHLTYPE) %>%
   mutate(mean_totalpa = mean(total_pa_wk_min)) %>%
   pivot_wider(names_from = TSCHLTYPE, 
-    values_from = total_pa_wk_min),
+    values_from = total_pa_wk_min)
 
 ```
 # Summary Table
@@ -218,7 +216,6 @@ teen_w_bmi_1 %>%
 
 Down here is Zach messing around with an ANOVA
 ```{r}
-
 teen_w_bmi_1 %>% 
   group_by(TSCHLTYPE) %>% 
   summarise(count = n(),
