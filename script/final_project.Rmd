@@ -307,17 +307,7 @@ tidy_tukey <- tidy(tukey_age, digits = 20)
 tidy_tukey %>% 
   kable(digits = 15)
 
-#this part wasn't knitting
-anova_gender <- aov(total_pa_wk_min ~ TSEX, data = teen_w_bmi_1)
-summary(anova_gender)
 
-tukey_gender <- TukeyHSD(anova_gender)
-summary(anova_gender)
-
-tidy_tuke_gender <- tidy(tukey_gender, digits = 20)
-
-tidy_tuke_gender %>% 
-  kable()
 
 ```
 
